@@ -1,0 +1,27 @@
+/**
+ * Component Styles
+ *
+ * Styles for non-shadow-DOM components and shared component styles.
+ *
+ * TODO: Add styles for:
+ * 1. .letter-boxes-container - flex layout for letter boxes
+ * 2. .action-buttons - button group layout
+ * 3. Theme cards - hover effects, colors
+ * 4. Level cards - locked/unlocked states
+ * 5. Responsive styles for mobile/tablet
+ */
+
+/* TODO: Letter Boxes Container */
+/* Display flex, gap between boxes, centered */
+
+/* TODO: Action Buttons */
+/* Flex layout, gap, centered */
+
+/* TODO: Theme Cards */
+/* Card styling, hover scale effect */
+
+/* TODO: Level Cards */
+/* Card styling, locked state (grayscale), stars display */
+
+/* TODO: Responsive Styles */
+/* @media queries for mobile (<640px) and tablet (640px-1024px) */
