@@ -1,0 +1,46 @@
+/**
+ * Animation Keyframes
+ *
+ * Reusable animations for the application.
+ *
+ * TODO: Define the following animations:
+ * 1. correctPop - scale up/down for correct letters
+ * 2. incorrectShake - horizontal shake for incorrect letters
+ * 3. celebrate - scale and rotate for celebration modal
+ * 4. starBurst - particles flying outward
+ * 5. fadeIn - opacity transition
+ * 6. slideIn - slide from bottom
+ * 7. bounce - subtle bounce effect
+ */
+
+/* TODO: @keyframes correctPop */
+/* 0%: scale(1) */
+/* 50%: scale(1.1) */
+/* 100%: scale(1) */
+
+/* TODO: @keyframes incorrectShake */
+/* 0%, 100%: translateX(0) */
+/* 25%: translateX(-4px) */
+/* 75%: translateX(4px) */
+
+/* TODO: @keyframes celebrate */
+/* 0%: scale(0) rotate(0deg) opacity(0) */
+/* 50%: scale(1.2) rotate(10deg) opacity(1) */
+/* 100%: scale(1) rotate(0deg) opacity(1) */
+
+/* TODO: @keyframes starBurst */
+/* Use CSS variables for dynamic direction: --tx, --ty */
+/* 0%: translate(0, 0) scale(1) opacity(1) */
+/* 100%: translate(var(--tx), var(--ty)) scale(0) opacity(0) */
+
+/* TODO: @keyframes fadeIn */
+/* 0%: opacity(0) */
+/* 100%: opacity(1) */
+
+/* TODO: @keyframes slideIn */
+/* 0%: transform(translateY(20px)) opacity(0) */
+/* 100%: transform(translateY(0)) opacity(1) */
+
+/* TODO: @keyframes bounce */
+/* 0%, 100%: transform(translateY(0)) */
+/* 50%: transform(translateY(-10px)) */

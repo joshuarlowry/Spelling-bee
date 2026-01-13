@@ -1,0 +1,44 @@
+/**
+ * CSS Variables
+ *
+ * Global design tokens for consistent styling.
+ *
+ * TODO: Define the following CSS custom properties:
+ * 1. Color palette (primary, accent, success, error, backgrounds, text)
+ * 2. Font families (headings, body, letter boxes)
+ * 3. Spacing scale (xs, sm, md, lg, xl)
+ * 4. Border radius values
+ * 5. Transition durations
+ * 6. Breakpoints (mobile, tablet, desktop)
+ * 7. Z-index layers
+ */
+
+:root {
+  /* TODO: Colors */
+  /* Primary Background: #FFF9F0 (warm cream) */
+  /* Card Background: #FFFFFF (white) */
+  /* Primary Accent: #6C63FF (friendly purple) */
+  /* Success Green: #4CAF50 (correct letters) */
+  /* Error Red: #FF6B6B (incorrect, soft red) */
+  /* Text Primary: #2D3436 (dark gray) */
+  /* Text Secondary: #636E72 (medium gray) */
+  /* Fantasy Theme Accent: #9C27B0 (royal purple) */
+  /* Sci-Fi Theme Accent: #00BCD4 (cyan) */
+
+  /* TODO: Typography */
+  /* Headings: 'Fredoka One', cursive */
+  /* Body: 'Nunito', sans-serif */
+  /* Letter Boxes: 'Fredoka One', cursive */
+
+  /* TODO: Spacing */
+  /* Define spacing scale: 0.25rem, 0.5rem, 1rem, 1.5rem, 2rem, 3rem, 4rem */
+
+  /* TODO: Border Radius */
+  /* Small: 4px, Medium: 8px, Large: 16px */
+
+  /* TODO: Transitions */
+  /* Fast: 0.15s, Normal: 0.3s, Slow: 0.5s */
+
+  /* TODO: Z-index layers */
+  /* base: 1, dropdown: 10, modal: 100, toast: 1000 */
+}

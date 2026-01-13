@@ -1,0 +1,41 @@
+/**
+ * Main Global Styles
+ *
+ * Base styles for the application.
+ *
+ * TODO: Implement the following:
+ * 1. CSS reset/normalize
+ * 2. Box-sizing border-box
+ * 3. Body and html base styles
+ * 4. Font imports from Google Fonts
+ * 5. Container styles
+ * 6. Button base styles
+ * 7. Card base styles
+ * 8. Utility classes (hidden, flex-center, etc.)
+ */
+
+/* TODO: Import variables */
+@import './variables.css';
+
+/* TODO: Import Google Fonts */
+/* @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&display=swap'); */
+
+/* TODO: CSS Reset */
+/* Reset margins, padding, box-sizing */
+
+/* TODO: Body and HTML */
+/* Set font family, background color, min-height */
+
+/* TODO: Container */
+/* Max width, centered, padding */
+
+/* TODO: Button Base Styles */
+/* Reset button styles, cursor pointer, no outline */
+
+/* TODO: Card Base Styles */
+/* White background, border-radius, box-shadow */
+
+/* TODO: Utility Classes */
+/* .hidden { display: none; } */
+/* .flex-center { display: flex; justify-content: center; align-items: center; } */
+/* etc. */
