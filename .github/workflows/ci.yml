@@ -33,7 +33,7 @@ jobs:
       run: npm run lint
 
     - name: Run tests
-      run: npm run test
+      run: npm run test -- --run
 
     - name: Build word lists
       run: npm run build:words
@@ -57,7 +57,7 @@ jobs:
       run: npm ci
 
     - name: Generate coverage report
-      run: npm run test:coverage
+      run: npm run test:coverage -- --run
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
