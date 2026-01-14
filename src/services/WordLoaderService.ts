@@ -11,10 +11,10 @@
  * 5. Add error handling for network failures
  */
 
-// TODO: Import WordList, Theme from '../types/data'
+import { WordList } from '../types/data';
 
 export class WordLoaderService {
-  private cache: Map<string, any> = new Map(); // Replace 'any' with WordList
+  private cache: Map<string, WordList> = new Map();
 
   constructor() {
     // Constructor is empty for now
@@ -34,8 +34,28 @@ export class WordLoaderService {
    * 6. Return WordList
    * 7. On error, throw descriptive error message
    */
-  async loadTheme(themeId: string): Promise<any> {
-    throw new Error('Not implemented');
+  async loadTheme(themeId: string): Promise<WordList> {
+    if (this.cache.has(themeId)) {
+      return this.cache.get(themeId)!;
+    }
+
+    try {
+      const response = await fetch(`/words/${themeId}.json`);
+      if (!response.ok) {
+        throw new Error(`Failed to load theme: ${response.statusText}`);
+      }
+
+      const data: WordList = await response.json();
+
+      if (!data.theme || !Array.isArray(data.levels)) {
+        throw new Error(`Invalid word list structure for theme: ${themeId}`);
+      }
+
+      this.cache.set(themeId, data);
+      return data;
+    } catch (error) {
+      throw new Error(`Failed to load theme "${themeId}": ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   }
 
   /**
@@ -48,7 +68,7 @@ export class WordLoaderService {
    * 2. Future enhancement: fetch from themes.json
    */
   getThemeList(): string[] {
-    throw new Error('Not implemented');
+    return ['fantasy', 'scifi'];
   }
 
   /**
@@ -60,7 +80,7 @@ export class WordLoaderService {
    * 1. Call this.cache.clear()
    */
   clearCache(): void {
-    throw new Error('Not implemented');
+    this.cache.clear();
   }
 }
 

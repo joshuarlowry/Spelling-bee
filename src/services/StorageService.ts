@@ -16,7 +16,7 @@
  * 10. Add try/catch blocks for localStorage errors
  */
 
-// TODO: Import SavedProgress, ThemeProgress, LevelProgress, UserSettings from types
+import { SavedProgress, ThemeProgress, LevelProgress, UserSettings } from '../types/state';
 
 const STORAGE_KEY = 'spellingBee_saveState';
 const STORAGE_VERSION = 1;
@@ -39,8 +39,17 @@ export class StorageService {
    * 5. Set default settings (soundEnabled: true, speechEnabled: true, speechRate: 0.85)
    * 6. Return the object
    */
-  private getDefaultProgress(): any {
-    throw new Error('Not implemented');
+  private getDefaultProgress(): SavedProgress {
+    return {
+      version: STORAGE_VERSION,
+      lastPlayed: new Date().toISOString(),
+      themes: {},
+      settings: {
+        soundEnabled: true,
+        speechEnabled: true,
+        speechRate: 0.85,
+      },
+    };
   }
 
   /**
@@ -58,8 +67,24 @@ export class StorageService {
    * 7. Return parsed data
    * 8. On error, log to console and return null
    */
-  getProgress(): any {
-    throw new Error('Not implemented');
+  getProgress(): SavedProgress | null {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) {
+        return null;
+      }
+
+      const data: SavedProgress = JSON.parse(saved);
+
+      if (data.version !== STORAGE_VERSION) {
+        return this.migrateProgress(data);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Failed to load progress:', error);
+      return null;
+    }
   }
 
   /**
@@ -74,8 +99,13 @@ export class StorageService {
    * 4. Call localStorage.setItem(STORAGE_KEY, jsonString)
    * 5. On error, log to console
    */
-  saveProgress(progress: any): void {
-    throw new Error('Not implemented');
+  saveProgress(progress: SavedProgress): void {
+    try {
+      progress.lastPlayed = new Date().toISOString();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    } catch (error) {
+      console.error('Failed to save progress:', error);
+    }
   }
 
   /**
@@ -91,8 +121,37 @@ export class StorageService {
    * 5. Recalculate theme total score (sum all level scores)
    * 6. Call saveProgress()
    */
-  updateLevelProgress(themeId: string, level: number, update: any): void {
-    throw new Error('Not implemented');
+  updateLevelProgress(themeId: string, level: number, update: Partial<LevelProgress>): void {
+    const progress = this.getProgress() || this.getDefaultProgress();
+
+    if (!progress.themes[themeId]) {
+      progress.themes[themeId] = {
+        currentLevel: level,
+        totalScore: 0,
+        levels: {},
+      };
+    }
+
+    if (!progress.themes[themeId].levels[level]) {
+      progress.themes[themeId].levels[level] = {
+        completed: false,
+        score: 0,
+        stars: 0,
+        wordsHelped: [],
+      };
+    }
+
+    progress.themes[themeId].levels[level] = {
+      ...progress.themes[themeId].levels[level],
+      ...update,
+    };
+
+    progress.themes[themeId].totalScore = Object.values(progress.themes[themeId].levels).reduce(
+      (sum, lp) => sum + lp.score,
+      0
+    );
+
+    this.saveProgress(progress);
   }
 
   /**
@@ -105,8 +164,10 @@ export class StorageService {
    * 2. Merge settings update into progress.settings
    * 3. Call saveProgress()
    */
-  updateSettings(settings: any): void {
-    throw new Error('Not implemented');
+  updateSettings(settings: Partial<UserSettings>): void {
+    const progress = this.getProgress() || this.getDefaultProgress();
+    progress.settings = { ...progress.settings, ...settings };
+    this.saveProgress(progress);
   }
 
   /**
@@ -118,7 +179,7 @@ export class StorageService {
    * 1. Call localStorage.removeItem(STORAGE_KEY)
    */
   clearProgress(): void {
-    throw new Error('Not implemented');
+    localStorage.removeItem(STORAGE_KEY);
   }
 
   /**
@@ -132,8 +193,14 @@ export class StorageService {
    * 3. Return migrated data
    * 4. In future, add version-specific migration logic
    */
-  private migrateProgress(old: any): any {
-    throw new Error('Not implemented');
+  private migrateProgress(old: any): SavedProgress {
+    const defaults = this.getDefaultProgress();
+    const migrated: SavedProgress = {
+      ...defaults,
+      ...old,
+      version: STORAGE_VERSION,
+    };
+    return migrated;
   }
 }
 

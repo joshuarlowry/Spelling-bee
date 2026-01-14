@@ -11,10 +11,12 @@
 // - pitch?: number (voice pitch, default 1.1)
 // - onBoundary?: (charIndex: number) => void (callback for word boundaries)
 export interface SpeechOptions {
-  // Add properties here
+  rate?: number;
+  pitch?: number;
+  onBoundary?: (charIndex: number) => void;
 }
 
 // TODO: Define SoundName type
 // Valid sound effect names
 // Should be: 'correct' | 'incorrect' | 'complete' | 'levelup' | 'click'
-export type SoundName = string; // Replace with proper union type
+export type SoundName = 'correct' | 'incorrect' | 'complete' | 'levelup' | 'click';
