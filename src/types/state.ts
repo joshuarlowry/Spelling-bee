@@ -13,6 +13,9 @@
 
 import { Word } from './data';
 
+// Export Word from data types
+export type { Word };
+
 // TODO: Define GameState interface
 // This tracks the current game session (in-memory only)
 // Should include:
@@ -26,7 +29,15 @@ import { Word } from './data';
 // - reshuffleQueue: Word[] (words that need to be repeated)
 // - inReshuffleMode: boolean (currently playing reshuffle words)
 export interface GameState {
-  // Add properties here
+  currentTheme: 'fantasy' | 'scifi' | null;
+  currentLevel: number;
+  currentWordIndex: number;
+  sessionScore: number;
+  currentWord: Word | null;
+  revealedLetters: boolean[];
+  helpUsed: boolean;
+  reshuffleQueue: Word[];
+  inReshuffleMode: boolean;
 }
 
 // TODO: Define SavedProgress interface
@@ -37,7 +48,10 @@ export interface GameState {
 // - themes: { [themeId: string]: ThemeProgress } (progress per theme)
 // - settings: UserSettings (user preferences)
 export interface SavedProgress {
-  // Add properties here
+  version: number;
+  lastPlayed: string;
+  themes: { [themeId: string]: ThemeProgress };
+  settings: UserSettings;
 }
 
 // TODO: Define ThemeProgress interface
@@ -47,7 +61,9 @@ export interface SavedProgress {
 // - totalScore: number (sum of all level scores)
 // - levels: { [levelNum: number]: LevelProgress } (per-level data)
 export interface ThemeProgress {
-  // Add properties here
+  currentLevel: number;
+  totalScore: number;
+  levels: { [levelNum: number]: LevelProgress };
 }
 
 // TODO: Define LevelProgress interface
@@ -58,7 +74,10 @@ export interface ThemeProgress {
 // - stars: 0 | 1 | 2 | 3 (star rating: 3=perfect, 2=good, 1=completed)
 // - wordsHelped: string[] (words where help was used)
 export interface LevelProgress {
-  // Add properties here
+  completed: boolean;
+  score: number;
+  stars: 0 | 1 | 2 | 3;
+  wordsHelped: string[];
 }
 
 // TODO: Define UserSettings interface
@@ -68,5 +87,7 @@ export interface LevelProgress {
 // - speechEnabled: boolean (text-to-speech on/off)
 // - speechRate: number (TTS speed, default 0.85)
 export interface UserSettings {
-  // Add properties here
+  soundEnabled: boolean;
+  speechEnabled: boolean;
+  speechRate: number;
 }

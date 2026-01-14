@@ -11,22 +11,35 @@
  */
 
 /**
- * TODO: Define features object
+ * Define features object
  *
  * Steps:
  * 1. speechSynthesis: check 'speechSynthesis' in window
  * 2. localStorage: try to set/get/remove test item, catch errors
  * 3. webAudio: check 'AudioContext' or 'webkitAudioContext' in window
  */
-export const features = {
-  speechSynthesis: false, // TODO: Implement check
-  localStorage: false,    // TODO: Implement check
-  webAudio: false,        // TODO: Implement check
-};
+function detectFeatures() {
+  const detected = {
+    speechSynthesis: 'speechSynthesis' in window,
+    localStorage: false,
+    webAudio: 'AudioContext' in window || 'webkitAudioContext' in window,
+  };
+
+  try {
+    const testKey = '__test__';
+    localStorage.setItem(testKey, testKey);
+    localStorage.removeItem(testKey);
+    detected.localStorage = true;
+  } catch {
+    detected.localStorage = false;
+  }
+
+  return detected;
+}
+
+export const features = detectFeatures();
 
 /**
- * TODO: Implement showFeatureWarning()
- *
  * Shows a user-friendly warning when a feature is missing.
  *
  * Steps:
@@ -40,5 +53,19 @@ export const features = {
  * 6. Remove after 5 seconds
  */
 export function showFeatureWarning(feature: string): void {
-  throw new Error('Not implemented');
+  const warnings: { [key: string]: string } = {
+    speechSynthesis: 'Voice is not available. Words will be shown on screen.',
+    localStorage: 'Progress cannot be saved in this browser.',
+  };
+
+  const message = warnings[feature] || `Feature "${feature}" is not available.`;
+
+  const toast = document.createElement('div');
+  toast.className = 'feature-warning';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.remove();
+  }, 5000);
 }

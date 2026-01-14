@@ -9,17 +9,15 @@
  * 3. Initialize app on DOMContentLoaded
  */
 
-// TODO: Import styles
-// import './styles/variables.css';
-// import './styles/main.css';
-// import './styles/animations.css';
-// import './styles/components.css';
+import './styles/variables.css';
+import './styles/main.css';
+import './styles/animations.css';
+import './styles/components.css';
 
-// TODO: Import app
-// import { App } from './app';
+import { App } from './app';
 
 /**
- * TODO: Initialize app
+ * Initialize app
  *
  * Steps:
  * 1. Wait for DOMContentLoaded event
@@ -27,8 +25,7 @@
  * 3. Log startup message to console
  */
 
-// Example implementation:
-// document.addEventListener('DOMContentLoaded', () => {
-//   console.log('🐝 Spelling Bee Game Starting...');
-//   new App();
-// });
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('🐝 Spelling Bee Game Starting...');
+  new App();
+});

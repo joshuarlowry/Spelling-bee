@@ -20,213 +20,277 @@
  * 14. Register custom element
  */
 
+import { wordLoaderService } from '../services/WordLoaderService';
+import { gameState } from '../services/GameStateManager';
+import { storageService } from '../services/StorageService';
+import { router } from '../services/Router';
+import { speechService } from '../services/SpeechService';
+import { audioService } from '../services/AudioService';
+import { LetterBoxes } from './LetterBoxes';
+import { calculatePoints, calculateStars } from '../utils/helpers';
+
 export class GameScreen extends HTMLElement {
   private themeId: string = '';
   private levelNum: number = 1;
   private words: any[] = [];
   private currentWordIndex: number = 0;
-  private letterBoxes: any = null; // Replace 'any' with LetterBoxes
+  private letterBoxes: LetterBoxes | null = null;
+
+  private wordLoaderService = wordLoaderService;
+  private gameStateManager = gameState;
+  private storageService = storageService;
+  private router = router;
+  private speechService = speechService;
+  private audioService = audioService;
 
   constructor() {
     super();
-    /**
-     * TODO: Initialize component
-     *
-     * Steps:
-     * 1. Call this.attachShadow({ mode: 'open' })
-     */
-    throw new Error('Not implemented');
+    this.attachShadow({ mode: 'open' });
   }
 
-  /**
-   * TODO: Implement connectedCallback()
-   *
-   * Steps:
-   * 1. Get theme ID and level from attributes
-   * 2. Call this.render()
-   * 3. Call this.startGame()
-   */
   connectedCallback() {
-    throw new Error('Not implemented');
+    this.themeId = this.getAttribute('theme-id') || '';
+    this.levelNum = parseInt(this.getAttribute('level') || '1');
+    this.render();
+    this.setupEventListeners();
+    this.startGame();
   }
 
-  /**
-   * TODO: Implement render()
-   *
-   * Creates the game screen template.
-   *
-   * Steps:
-   * 1. Set this.shadowRoot!.innerHTML to template:
-   *    - <style> with game screen layout
-   *    - <div class="game-screen">
-   *      - <game-header></game-header>
-   *      - <word-display></word-display>
-   *      - <div class="letter-boxes-area"></div>
-   *      - <div class="action-buttons">
-   *        - <hear-again-button></hear-again-button>
-   *        - <help-button></help-button>
-   *      - <celebration-modal></celebration-modal>
-   * 2. Add event listeners for all custom events
-   */
   private render() {
-    throw new Error('Not implemented');
+    const template = document.createElement('template');
+    template.innerHTML = `
+      <style>
+        :host {
+          display: block;
+          width: 100%;
+          height: 100vh;
+        }
+
+        .game-screen {
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          padding: 20px;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+        }
+
+        game-header {
+          margin-bottom: 20px;
+        }
+
+        word-display {
+          margin-bottom: 20px;
+        }
+
+        .letter-boxes-area {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 12px;
+          padding: 20px;
+          margin-bottom: 20px;
+          min-height: 100px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .letter-boxes-container {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+
+        .action-buttons {
+          display: flex;
+          gap: 20px;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+
+        hear-again-button,
+        help-button {
+          display: block;
+        }
+      </style>
+      <div class="game-screen">
+        <game-header></game-header>
+        <word-display></word-display>
+        <div class="letter-boxes-area"></div>
+        <div class="action-buttons">
+          <hear-again-button></hear-again-button>
+          <help-button></help-button>
+        </div>
+        <celebration-modal></celebration-modal>
+      </div>
+    `;
+
+    if (this.shadowRoot) {
+      this.shadowRoot.appendChild(template.content.cloneNode(true));
+    }
   }
 
-  /**
-   * TODO: Implement startGame()
-   *
-   * Initializes the game session.
-   *
-   * Steps:
-   * 1. Load theme data: wordLoaderService.loadTheme(this.themeId)
-   * 2. Get level data from theme
-   * 3. Store words array
-   * 4. Call gameState.startGame(this.themeId, this.levelNum)
-   * 5. Update game header with level info
-   * 6. Call this.loadWord()
-   */
+  private setupEventListeners() {
+    // Listen for custom events
+    this.addEventListener('word-complete', () => this.handleWordComplete());
+    this.addEventListener('help-requested', () => this.handleHelp());
+    this.addEventListener('hear-again', () => this.handleHearAgain());
+    this.addEventListener('back', () => this.handleBack());
+    this.addEventListener('continue', () => this.moveToNextWord());
+  }
+
   private async startGame() {
-    throw new Error('Not implemented');
+    try {
+      const wordList = await this.wordLoaderService.loadTheme(this.themeId);
+      // Get words from the selected level
+      const level = wordList.levels[this.levelNum - 1];
+      this.words = level?.words || [];
+
+      this.gameStateManager.startGame(this.themeId, this.levelNum);
+
+      const header = this.shadowRoot?.querySelector('game-header') as any;
+      if (header) {
+        header.updateProgress(1, this.words.length);
+      }
+
+      this.loadWord();
+    } catch (error) {
+      console.error('Failed to start game:', error);
+    }
   }
 
-  /**
-   * TODO: Implement loadWord()
-   *
-   * Loads the current word.
-   *
-   * Steps:
-   * 1. Get current word from this.words[this.currentWordIndex]
-   * 2. Call gameState.setCurrentWord(word)
-   * 3. Update word display
-   * 4. Create new LetterBoxes instance
-   * 5. Update progress indicator
-   * 6. Call this.announceWord()
-   */
   private loadWord() {
-    throw new Error('Not implemented');
+    if (this.currentWordIndex >= this.words.length) {
+      this.completeLevel();
+      return;
+    }
+
+    const word = this.words[this.currentWordIndex];
+    this.gameStateManager.setCurrentWord(word);
+
+    const wordDisplay = this.shadowRoot?.querySelector('word-display') as any;
+    if (wordDisplay) {
+      wordDisplay.setWord(word.word);
+      wordDisplay.setSentence(word.sentence);
+    }
+
+    const letterBoxesArea = this.shadowRoot?.querySelector('.letter-boxes-area');
+    if (letterBoxesArea) {
+      // Clear previous boxes
+      const prevContainer = letterBoxesArea.querySelector('.letter-boxes-container');
+      if (prevContainer) {
+        prevContainer.remove();
+      }
+
+      const container = document.createElement('div');
+      container.className = 'letter-boxes-container';
+      letterBoxesArea.appendChild(container);
+
+      this.letterBoxes = new LetterBoxes(word.word, container);
+    }
+
+    const header = this.shadowRoot?.querySelector('game-header') as any;
+    if (header) {
+      header.updateProgress(this.currentWordIndex + 1, this.words.length);
+    }
+
+    this.announceWord(word);
   }
 
-  /**
-   * TODO: Implement announceWord()
-   *
-   * Speaks the word and sentence.
-   *
-   * Steps:
-   * 1. Call speechService.speakWord(word.word)
-   * 2. Wait for completion
-   * 3. Call speechService.speakSentence(word.sentence)
-   */
   private async announceWord(word: any) {
-    throw new Error('Not implemented');
+    await this.speechService.speakWord(word.word);
+    await this.speechService.speakSentence(word.sentence);
   }
 
-  /**
-   * TODO: Implement handleWordComplete()
-   *
-   * Handles word completion.
-   *
-   * Steps:
-   * 1. Calculate points earned (use helper function)
-   * 2. Call gameState.completeWord(points)
-   * 3. Update score display
-   * 4. Show celebration modal with points
-   * 5. Wait for continue event
-   * 6. Move to next word or complete level
-   */
   private handleWordComplete() {
-    throw new Error('Not implemented');
+    const points = this.calculatePoints();
+    const state = this.gameStateManager.getState();
+
+    this.gameStateManager.completeWord(points);
+
+    const header = this.shadowRoot?.querySelector('game-header') as any;
+    if (header) {
+      header.updateScore(state.sessionScore + points);
+    }
+
+    const modal = this.shadowRoot?.querySelector('celebration-modal') as any;
+    if (modal) {
+      modal.show(points);
+    }
   }
 
-  /**
-   * TODO: Implement handleHelp()
-   *
-   * Handles help button click.
-   *
-   * Steps:
-   * 1. Call gameState.useHelp()
-   * 2. Call letterBoxes.revealAll()
-   * 3. Disable help button
-   * 4. Auto-advance after reveal complete
-   */
   private handleHelp() {
-    throw new Error('Not implemented');
+    this.gameStateManager.useHelp();
+
+    if (this.letterBoxes) {
+      this.letterBoxes.revealAll().then(() => {
+        this.moveToNextWord();
+      });
+    }
+
+    const helpBtn = this.shadowRoot?.querySelector('help-button') as any;
+    if (helpBtn) {
+      helpBtn.setDisabled(true);
+    }
   }
 
-  /**
-   * TODO: Implement handleHearAgain()
-   *
-   * Handles hear again button click.
-   *
-   * Steps:
-   * 1. Get current word
-   * 2. Call this.announceWord(word)
-   */
   private handleHearAgain() {
-    throw new Error('Not implemented');
+    const state = this.gameStateManager.getState();
+    if (state.currentWord) {
+      this.announceWord(state.currentWord);
+    }
   }
 
-  /**
-   * TODO: Implement calculatePoints()
-   *
-   * Calculates points for current word.
-   *
-   * Steps:
-   * 1. Base points = 10
-   * 2. Get level multiplier (level 1 = 1x, level 2 = 1.5x, etc.)
-   * 3. If help was used:
-   *    - Count revealed letters
-   *    - Award points only for letters typed before help
-   * 4. Return total points
-   */
   private calculatePoints(): number {
-    throw new Error('Not implemented');
+    const state = this.gameStateManager.getState();
+    if (!state.currentWord) return 0;
+
+    return calculatePoints(
+      this.levelNum,
+      state.currentWord.word.length,
+      0, // lettersTypedBeforeHelp - would need to track this
+      state.helpUsed
+    );
   }
 
-  /**
-   * TODO: Implement moveToNextWord()
-   *
-   * Advances to next word or completes level.
-   *
-   * Steps:
-   * 1. Increment currentWordIndex
-   * 2. If more words remain:
-   *    - Call this.loadWord()
-   * 3. Else:
-   *    - Call this.completeLevel()
-   */
   private moveToNextWord() {
-    throw new Error('Not implemented');
+    this.currentWordIndex++;
+
+    if (this.currentWordIndex < this.words.length) {
+      this.loadWord();
+    } else {
+      this.completeLevel();
+    }
   }
 
-  /**
-   * TODO: Implement completeLevel()
-   *
-   * Handles level completion.
-   *
-   * Steps:
-   * 1. Calculate star rating (3 = perfect, 2 = good, 1 = completed)
-   * 2. Save level completion to storage
-   * 3. Play 'levelup' sound
-   * 4. Show level complete modal
-   * 5. Navigate back to level select
-   */
   private completeLevel() {
-    throw new Error('Not implemented');
+    const state = this.gameStateManager.getState();
+    const score = state.sessionScore;
+    const maxScore = this.words.length * 100; // Rough max
+    const stars = calculateStars(score, maxScore);
+
+    this.storageService.updateLevelProgress(this.themeId, this.levelNum, {
+      score,
+      stars,
+    });
+
+    this.audioService.play('levelup');
+
+    // Show completion message after a short delay
+    setTimeout(() => {
+      alert(`Level ${this.levelNum} Complete!\nScore: ${score}\nStars: ${'⭐'.repeat(stars)}`);
+      this.router.navigate('levels', { theme: this.themeId });
+    }, 500);
   }
 
-  /**
-   * TODO: Implement handleBack()
-   *
-   * Handles back button from header.
-   *
-   * Steps:
-   * 1. Save current progress
-   * 2. Navigate: router.navigate('levels', { theme: this.themeId })
-   */
   private handleBack() {
-    throw new Error('Not implemented');
+    this.storageService.updateLevelProgress(this.themeId, this.levelNum, {
+      score: this.gameStateManager.getState().sessionScore,
+    });
+
+    this.router.navigate('levels', { theme: this.themeId });
   }
 }
 
-// TODO: Register custom element
-// customElements.define('game-screen', GameScreen);
+customElements.define('game-screen', GameScreen);

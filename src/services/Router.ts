@@ -13,51 +13,47 @@
  * 7. Implement handleRoute() - call appropriate handler
  */
 
-// TODO: Import Route, RouteParams, RouteHandler from '../types/router'
+import { Route, RouteParams, RouteHandler } from '../types/router';
 
 export class Router {
-  private routes: Map<string, any> = new Map(); // Replace 'any' with RouteHandler
-  private currentRoute: string = 'title'; // Replace 'string' with Route
+  private routes: Map<Route, RouteHandler> = new Map();
+  private currentRoute: Route = 'title';
 
   constructor() {
     /**
-     * TODO: Setup router
+     * Setup router
      *
      * Steps:
      * 1. Add 'hashchange' event listener that calls this.handleRoute()
      * 2. Add 'load' event listener that calls this.handleRoute()
      */
-    throw new Error('Not implemented');
+    window.addEventListener('hashchange', () => this.handleRoute());
+    window.addEventListener('load', () => this.handleRoute());
   }
 
   /**
-   * TODO: Implement register()
-   *
    * Registers a route handler.
    *
    * Steps:
    * 1. Add to this.routes Map: this.routes.set(route, handler)
    */
-  register(route: string, handler: any): void {
-    throw new Error('Not implemented');
+  register(route: Route, handler: RouteHandler): void {
+    this.routes.set(route, handler);
   }
 
   /**
-   * TODO: Implement navigate()
-   *
    * Navigates to a route.
    *
    * Steps:
    * 1. Build hash string: const hash = this.buildHash(route, params)
    * 2. Set window.location.hash = hash
    */
-  navigate(route: string, params: any = {}): void {
-    throw new Error('Not implemented');
+  navigate(route: Route, params: RouteParams = {}): void {
+    const hash = this.buildHash(route, params);
+    window.location.hash = hash;
   }
 
   /**
-   * TODO: Implement buildHash()
-   *
    * Constructs hash string from route and params.
    *
    * Steps:
@@ -67,13 +63,20 @@ export class Router {
    *    - 'game': return `#/theme/${params.theme}/level/${params.level}`
    *    - default: return '#/'
    */
-  private buildHash(route: string, params: any): string {
-    throw new Error('Not implemented');
+  private buildHash(route: Route, params: RouteParams): string {
+    switch (route) {
+      case 'title':
+        return '#/';
+      case 'levels':
+        return `#/theme/${params.theme}`;
+      case 'game':
+        return `#/theme/${params.theme}/level/${params.level}`;
+      default:
+        return '#/';
+    }
   }
 
   /**
-   * TODO: Implement handleRoute()
-   *
    * Handles route changes.
    *
    * Steps:
@@ -84,12 +87,17 @@ export class Router {
    * 5. If handler exists, call handler(params)
    */
   private handleRoute(): void {
-    throw new Error('Not implemented');
+    const hash = window.location.hash || '#/';
+    const { route, params } = this.parseHash(hash);
+    this.currentRoute = route;
+
+    const handler = this.routes.get(route);
+    if (handler) {
+      handler(params);
+    }
   }
 
   /**
-   * TODO: Implement parseHash()
-   *
    * Parses hash string into route and params.
    *
    * Steps:
@@ -100,20 +108,34 @@ export class Router {
    * 5. If theme exists: return { route: 'levels', params: { theme } }
    * 6. Otherwise: return { route: 'title', params: {} }
    */
-  private parseHash(hash: string): { route: string; params: any } {
-    throw new Error('Not implemented');
+  private parseHash(hash: string): { route: Route; params: RouteParams } {
+    const match = hash.match(/^#\/(?:theme\/(\w+)(?:\/level\/(\d+))?)?$/);
+
+    if (!match) {
+      return { route: 'title', params: {} };
+    }
+
+    const [, theme, level] = match;
+
+    if (level) {
+      return { route: 'game', params: { theme, level: parseInt(level, 10) } };
+    }
+
+    if (theme) {
+      return { route: 'levels', params: { theme } };
+    }
+
+    return { route: 'title', params: {} };
   }
 
   /**
-   * TODO: Implement current getter
-   *
    * Returns current route.
    *
    * Steps:
    * 1. Return this.currentRoute
    */
-  get current(): string {
-    throw new Error('Not implemented');
+  get current(): Route {
+    return this.currentRoute;
   }
 }
 

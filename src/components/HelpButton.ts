@@ -14,73 +14,75 @@
  * 8. Register custom element
  */
 
+import { audioService } from '../services/AudioService';
+
 export class HelpButton extends HTMLElement {
+  private audioService = audioService;
+
   constructor() {
     super();
-    /**
-     * TODO: Initialize component
-     *
-     * Steps:
-     * 1. Call this.attachShadow({ mode: 'open' })
-     */
-    throw new Error('Not implemented');
+    this.attachShadow({ mode: 'open' });
   }
 
-  /**
-   * TODO: Implement connectedCallback()
-   *
-   * Steps:
-   * 1. Call this.render()
-   */
   connectedCallback() {
-    throw new Error('Not implemented');
+    this.render();
   }
 
-  /**
-   * TODO: Implement render()
-   *
-   * Creates the button template.
-   *
-   * Steps:
-   * 1. Set this.shadowRoot!.innerHTML to template:
-   *    - <style> with:
-   *      - button styles (padding, border-radius, background, hover)
-   *      - :disabled styles (gray, no pointer)
-   *    - <button>Help Me 🆘</button>
-   * 2. Add click listener to button
-   */
   private render() {
-    throw new Error('Not implemented');
+    const template = document.createElement('template');
+    template.innerHTML = `
+      <style>
+        button {
+          padding: 10px 16px;
+          border-radius: 6px;
+          background: #ff9f43;
+          color: white;
+          border: none;
+          font-size: 16px;
+          font-weight: bold;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        button:hover:not(:disabled) {
+          background: #ff8c42;
+          transform: scale(1.05);
+        }
+
+        button:active:not(:disabled) {
+          transform: scale(0.95);
+        }
+
+        button:disabled {
+          background: #ccc;
+          cursor: not-allowed;
+          opacity: 0.6;
+        }
+      </style>
+      <button>Help Me 🆘</button>
+    `;
+
+    if (this.shadowRoot) {
+      this.shadowRoot.appendChild(template.content.cloneNode(true));
+      const button = this.shadowRoot.querySelector('button');
+      if (button) {
+        button.addEventListener('click', () => this.handleClick());
+      }
+    }
   }
 
-  /**
-   * TODO: Implement handleClick()
-   *
-   * Handles button click.
-   *
-   * Steps:
-   * 1. Dispatch 'help-requested' CustomEvent
-   * 2. Set bubbles: true
-   * 3. Disable button after click
-   * 4. Play 'click' sound via audioService
-   */
   private handleClick() {
-    throw new Error('Not implemented');
+    this.audioService.play('click');
+    this.dispatchEvent(new CustomEvent('help-requested', { bubbles: true }));
+    this.setDisabled(true);
   }
 
-  /**
-   * TODO: Implement setDisabled()
-   *
-   * Enables/disables the button.
-   *
-   * Steps:
-   * 1. Query button element
-   * 2. Set disabled property
-   */
   setDisabled(disabled: boolean) {
-    throw new Error('Not implemented');
+    const button = this.shadowRoot?.querySelector('button') as HTMLButtonElement;
+    if (button) {
+      button.disabled = disabled;
+    }
   }
 }
 
-// TODO: Register custom element
-// customElements.define('help-button', HelpButton);
+customElements.define('help-button', HelpButton);

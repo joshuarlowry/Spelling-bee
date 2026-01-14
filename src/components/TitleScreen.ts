@@ -15,101 +15,223 @@
  * 9. Register custom element
  */
 
+import { wordLoaderService } from '../services/WordLoaderService';
+import { storageService } from '../services/StorageService';
+import { router } from '../services/Router';
+import { audioService } from '../services/AudioService';
+
 export class TitleScreen extends HTMLElement {
+  private wordLoaderService = wordLoaderService;
+  private storageService = storageService;
+  private router = router;
+  private audioService = audioService;
+
   constructor() {
     super();
-    /**
-     * TODO: Initialize component
-     *
-     * Steps:
-     * 1. Call this.attachShadow({ mode: 'open' })
-     */
-    throw new Error('Not implemented');
+    this.attachShadow({ mode: 'open' });
   }
 
-  /**
-   * TODO: Implement connectedCallback()
-   *
-   * Steps:
-   * 1. Call this.render()
-   * 2. Call this.loadThemes()
-   */
   connectedCallback() {
-    throw new Error('Not implemented');
+    this.render();
+    this.loadThemes();
   }
 
-  /**
-   * TODO: Implement render()
-   *
-   * Creates the title screen template.
-   *
-   * Steps:
-   * 1. Set this.shadowRoot!.innerHTML to template:
-   *    - <style> with:
-   *      - .title-screen container styles
-   *      - .title styles (large, centered)
-   *      - .subtitle styles
-   *      - .themes-container (grid layout)
-   *      - .continue-button styles (only shown if save exists)
-   *    - <div class="title-screen">
-   *      - <h1 class="title">SPELLING BEE ADVENTURE</h1>
-   *      - <p class="subtitle">Choose Your Adventure</p>
-   *      - <div class="themes-container"></div>
-   *      - <button class="continue-button hidden">Continue Game</button>
-   */
   private render() {
-    throw new Error('Not implemented');
+    const template = document.createElement('template');
+    template.innerHTML = `
+      <style>
+        :host {
+          display: block;
+          width: 100%;
+          height: 100vh;
+        }
+
+        .title-screen {
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          padding: 40px;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .title {
+          font-size: 48px;
+          font-weight: bold;
+          color: white;
+          text-align: center;
+          margin: 40px 0 20px 0;
+          text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+          font-size: 24px;
+          color: rgba(255, 255, 255, 0.9);
+          text-align: center;
+          margin-bottom: 40px;
+        }
+
+        .themes-container {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 20px;
+          max-width: 1200px;
+          width: 100%;
+          margin-bottom: 40px;
+        }
+
+        .theme-card {
+          background: white;
+          border-radius: 12px;
+          padding: 24px;
+          cursor: pointer;
+          transition: all 0.3s;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          text-align: center;
+        }
+
+        .theme-card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-card:active {
+          transform: translateY(-4px);
+        }
+
+        .theme-icon {
+          font-size: 48px;
+          margin-bottom: 12px;
+        }
+
+        .theme-name {
+          font-size: 24px;
+          font-weight: bold;
+          color: #333;
+          margin: 0;
+        }
+
+        .theme-description {
+          font-size: 14px;
+          color: #666;
+          margin: 8px 0 0 0;
+        }
+
+        .continue-button {
+          margin-top: 20px;
+          padding: 14px 32px;
+          font-size: 18px;
+          font-weight: bold;
+          background: white;
+          color: #667eea;
+          border: 3px solid white;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .continue-button:hover {
+          transform: scale(1.05);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .continue-button:active {
+          transform: scale(0.95);
+        }
+
+        .continue-button.hidden {
+          display: none;
+        }
+      </style>
+      <div class="title-screen">
+        <h1 class="title">🐝 SPELLING BEE ADVENTURE 🐝</h1>
+        <p class="subtitle">Choose Your Adventure</p>
+        <div class="themes-container"></div>
+        <button class="continue-button hidden">Continue Game</button>
+      </div>
+    `;
+
+    if (this.shadowRoot) {
+      this.shadowRoot.appendChild(template.content.cloneNode(true));
+    }
   }
 
-  /**
-   * TODO: Implement loadThemes()
-   *
-   * Loads and displays available themes.
-   *
-   * Steps:
-   * 1. Get theme list from wordLoaderService.getThemeList()
-   * 2. For each theme ID:
-   *    - Load theme data: wordLoaderService.loadTheme(themeId)
-   *    - Create theme card element
-   *    - Set card attributes (theme-id, name, icon, description)
-   *    - Add click listener
-   *    - Append to themes-container
-   * 3. Check if save exists via storageService.getProgress()
-   * 4. If save exists, show continue button
-   */
   private async loadThemes() {
-    throw new Error('Not implemented');
+    const themesContainer = this.shadowRoot?.querySelector('.themes-container');
+    if (!themesContainer) return;
+
+    try {
+      const themeIds = this.wordLoaderService.getThemeList();
+
+      for (const themeId of themeIds) {
+        const wordList = await this.wordLoaderService.loadTheme(themeId);
+        const totalWords = wordList.levels.reduce((sum, level) => sum + (level.words?.length || 0), 0);
+
+        const card = document.createElement('div');
+        card.className = 'theme-card';
+        card.innerHTML = `
+          <div class="theme-icon">${this.getThemeIcon(themeId)}</div>
+          <h2 class="theme-name">${this.capitalize(themeId)}</h2>
+          <p class="theme-description">${wordList.theme.description || `${totalWords} words`}</p>
+        `;
+
+        card.addEventListener('click', () => this.handleThemeSelect(themeId));
+        themesContainer.appendChild(card);
+      }
+
+      // Check for saved game
+      const progress = this.storageService.getProgress();
+      if (progress && Object.keys(progress.themes).length > 0) {
+        const continueBtn = this.shadowRoot?.querySelector('.continue-button');
+        if (continueBtn) {
+          continueBtn.classList.remove('hidden');
+          continueBtn.addEventListener('click', () => this.handleContinue());
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load themes:', error);
+    }
   }
 
-  /**
-   * TODO: Implement handleThemeSelect()
-   *
-   * Handles theme selection.
-   *
-   * Steps:
-   * 1. Get theme ID from event
-   * 2. Navigate to level select: router.navigate('levels', { theme: themeId })
-   * 3. Play 'click' sound via audioService
-   */
   private handleThemeSelect(themeId: string) {
-    throw new Error('Not implemented');
+    this.audioService.play('click');
+    this.router.navigate('levels', { theme: themeId });
   }
 
-  /**
-   * TODO: Implement handleContinue()
-   *
-   * Handles continue game button.
-   *
-   * Steps:
-   * 1. Get saved progress from storageService
-   * 2. Find last played theme and level
-   * 3. Navigate to that game: router.navigate('game', { theme, level })
-   * 4. Play 'click' sound via audioService
-   */
   private handleContinue() {
-    throw new Error('Not implemented');
+    const progress = this.storageService.getProgress();
+    if (!progress) return;
+
+    const themeKeys = Object.keys(progress.themes);
+    if (themeKeys.length === 0) return;
+
+    const lastTheme = themeKeys[themeKeys.length - 1] || '';
+    if (!lastTheme) return;
+    const themeProgress = progress.themes[lastTheme];
+    if (!themeProgress) return;
+    const level = themeProgress.currentLevel || 1;
+
+    this.audioService.play('click');
+    this.router.navigate('game', { theme: lastTheme, level });
+  }
+
+  private getThemeIcon(themeId: string): string {
+    const icons: Record<string, string> = {
+      fantasy: '🧙‍♂️',
+      scifi: '🚀',
+      animals: '🦁',
+      food: '🍕',
+      nature: '🌲',
+      sports: '⚽',
+    };
+    return icons[themeId] || '✨';
+  }
+
+  private capitalize(str: string): string {
+    return str.charAt(0).toUpperCase() + str.slice(1);
   }
 }
 
-// TODO: Register custom element
-// customElements.define('title-screen', TitleScreen);
+customElements.define('title-screen', TitleScreen);

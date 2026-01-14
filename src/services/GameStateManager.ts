@@ -20,30 +20,28 @@
  * 9. Implement saveProgress() - persists state to storage
  */
 
-// TODO: Import GameState, Word from '../types/state'
-// TODO: Import storageService from './StorageService'
+import { GameState, Word } from '../types/state';
+import { storageService } from './StorageService';
 
-type StateListener = (state: any) => void; // Replace 'any' with GameState
+type StateListener = (state: GameState) => void;
 
 export class GameStateManager {
-  private state: any; // Replace 'any' with GameState
+  private state: GameState;
   private listeners: Set<StateListener> = new Set();
-  private storage: any; // Replace 'any' with StorageService
+  private storage = storageService;
 
   constructor() {
     /**
-     * TODO: Initialize game state manager
+     * Initialize game state manager
      *
      * Steps:
      * 1. Set this.storage = storageService
      * 2. Set this.state = this.getInitialState()
      */
-    throw new Error('Not implemented');
+    this.state = this.getInitialState();
   }
 
   /**
-   * TODO: Implement getInitialState()
-   *
    * Returns initial state object.
    *
    * Steps:
@@ -58,38 +56,43 @@ export class GameStateManager {
    *    - reshuffleQueue: []
    *    - inReshuffleMode: false
    */
-  private getInitialState(): any {
-    throw new Error('Not implemented');
+  private getInitialState(): GameState {
+    return {
+      currentTheme: null,
+      currentLevel: 1,
+      currentWordIndex: 0,
+      sessionScore: 0,
+      currentWord: null,
+      revealedLetters: [],
+      helpUsed: false,
+      reshuffleQueue: [],
+      inReshuffleMode: false,
+    };
   }
 
   /**
-   * TODO: Implement getState()
-   *
    * Returns immutable copy of current state.
    *
    * Steps:
    * 1. Return Object.freeze({ ...this.state })
    */
-  getState(): any {
-    throw new Error('Not implemented');
+  getState(): GameState {
+    return Object.freeze({ ...this.state });
   }
 
   /**
-   * TODO: Implement setState()
-   *
    * Updates state with partial object.
    *
    * Steps:
    * 1. Merge partial into this.state: this.state = { ...this.state, ...partial }
    * 2. Call this.notifyListeners()
    */
-  setState(partial: any): void {
-    throw new Error('Not implemented');
+  setState(partial: Partial<GameState>): void {
+    this.state = { ...this.state, ...partial };
+    this.notifyListeners();
   }
 
   /**
-   * TODO: Implement subscribe()
-   *
    * Registers a state change listener.
    *
    * Steps:
@@ -97,12 +100,11 @@ export class GameStateManager {
    * 2. Return unsubscribe function: () => this.listeners.delete(listener)
    */
   subscribe(listener: StateListener): () => void {
-    throw new Error('Not implemented');
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
   }
 
   /**
-   * TODO: Implement notifyListeners()
-   *
    * Calls all registered listeners.
    *
    * Steps:
@@ -111,12 +113,11 @@ export class GameStateManager {
    * 3. Call each listener with state
    */
   private notifyListeners(): void {
-    throw new Error('Not implemented');
+    const state = this.getState();
+    this.listeners.forEach(listener => listener(state));
   }
 
   /**
-   * TODO: Implement startGame()
-   *
    * Initializes a game session.
    *
    * Steps:
@@ -131,12 +132,24 @@ export class GameStateManager {
    *    - inReshuffleMode: false
    */
   startGame(themeId: string, level: number): void {
-    throw new Error('Not implemented');
+    const progress = this.storage.getProgress();
+    let sessionScore = 0;
+
+    if (progress?.themes[themeId]?.levels[level]) {
+      sessionScore = progress.themes[themeId].levels[level].score || 0;
+    }
+
+    this.setState({
+      currentTheme: themeId as 'fantasy' | 'scifi',
+      currentLevel: level,
+      currentWordIndex: 0,
+      sessionScore,
+      reshuffleQueue: [],
+      inReshuffleMode: false,
+    });
   }
 
   /**
-   * TODO: Implement setCurrentWord()
-   *
    * Sets the word being spelled.
    *
    * Steps:
@@ -146,13 +159,16 @@ export class GameStateManager {
    *    - revealedLetters: array
    *    - helpUsed: false
    */
-  setCurrentWord(word: any): void {
-    throw new Error('Not implemented');
+  setCurrentWord(word: Word): void {
+    const revealedLetters = new Array(word.word.length).fill(false);
+    this.setState({
+      currentWord: word,
+      revealedLetters,
+      helpUsed: false,
+    });
   }
 
   /**
-   * TODO: Implement markLetterRevealed()
-   *
    * Marks a letter as revealed.
    *
    * Steps:
@@ -161,12 +177,12 @@ export class GameStateManager {
    * 3. Call setState() with new array
    */
   markLetterRevealed(index: number): void {
-    throw new Error('Not implemented');
+    const revealed = [...this.state.revealedLetters];
+    revealed[index] = true;
+    this.setState({ revealedLetters: revealed });
   }
 
   /**
-   * TODO: Implement useHelp()
-   *
    * Marks help as used for current word.
    *
    * Steps:
@@ -176,12 +192,16 @@ export class GameStateManager {
    * 3. Add currentWord to reshuffleQueue
    */
   useHelp(): void {
-    throw new Error('Not implemented');
+    if (this.state.currentWord && !this.state.helpUsed) {
+      const queue = [...this.state.reshuffleQueue, this.state.currentWord];
+      this.setState({
+        helpUsed: true,
+        reshuffleQueue: queue,
+      });
+    }
   }
 
   /**
-   * TODO: Implement completeWord()
-   *
    * Awards points and saves progress.
    *
    * Steps:
@@ -190,12 +210,12 @@ export class GameStateManager {
    * 3. Call this.saveProgress()
    */
   completeWord(pointsEarned: number): void {
-    throw new Error('Not implemented');
+    const newScore = this.state.sessionScore + pointsEarned;
+    this.setState({ sessionScore: newScore });
+    this.saveProgress();
   }
 
   /**
-   * TODO: Implement saveProgress()
-   *
    * Persists current state to storage.
    *
    * Steps:
@@ -207,7 +227,15 @@ export class GameStateManager {
    *    - update: { score: sessionScore }
    */
   private saveProgress(): void {
-    throw new Error('Not implemented');
+    const { currentTheme, currentLevel, sessionScore } = this.state;
+
+    if (!currentTheme) {
+      return;
+    }
+
+    this.storage.updateLevelProgress(currentTheme, currentLevel, {
+      score: sessionScore,
+    });
   }
 }
 

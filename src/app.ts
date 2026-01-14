@@ -13,50 +13,42 @@
  * 7. Create app root element
  */
 
-// TODO: Import services
-// import { router } from './services/Router';
-// import { gameState } from './services/GameStateManager';
-// import { speechService } from './services/SpeechService';
-// import { audioService } from './services/AudioService';
-// import { storageService } from './services/StorageService';
-// import { wordLoaderService } from './services/WordLoaderService';
+// Import services
+import { router } from './services/Router';
+import { audioService } from './services/AudioService';
 
-// TODO: Import components
-// import './components/TitleScreen';
-// import './components/LevelSelect';
-// import './components/GameScreen';
-// import './components/LetterBox';
-// import './components/WordDisplay';
-// import './components/CelebrationModal';
-// import './components/GameHeader';
-// import './components/HelpButton';
-// import './components/HearAgainButton';
+// Import components
+import './components/TitleScreen';
+import './components/LevelSelect';
+import './components/GameScreen';
+import './components/LetterBox';
+import './components/WordDisplay';
+import './components/CelebrationModal';
+import './components/GameHeader';
+import './components/HelpButton';
+import './components/HearAgainButton';
 
-// TODO: Import utilities
-// import { initErrorHandling } from './utils/errorHandler';
-// import { features, showFeatureWarning } from './utils/featureDetection';
+// Import utilities
+import { initErrorHandling } from './utils/errorHandler';
+import { features, showFeatureWarning } from './utils/featureDetection';
 
 /**
- * TODO: Implement App class
+ * Implement App class
  *
  * Main application controller.
  */
 export class App {
   private root: HTMLElement;
+  private router = router;
+  private audioService = audioService;
 
   constructor() {
-    /**
-     * TODO: Initialize app
-     *
-     * Steps:
-     * 1. Get or create app root element
-     * 2. Call this.init()
-     */
-    throw new Error('Not implemented');
+    this.root = document.getElementById('app') || document.body;
+    this.init();
   }
 
   /**
-   * TODO: Implement init()
+   * Implement init()
    *
    * Initializes the application.
    *
@@ -66,12 +58,19 @@ export class App {
    * 3. Register route handlers with router
    * 4. Initialize services
    */
-  private async init() {
-    throw new Error('Not implemented');
+  private init() {
+    initErrorHandling();
+    this.checkFeatures();
+    this.registerRoutes();
+    this.audioService.setEnabled(true);
+    this.audioService.preloadSounds();
+
+    // Navigate to title screen
+    this.router.navigate('title');
   }
 
   /**
-   * TODO: Implement registerRoutes()
+   * Implement registerRoutes()
    *
    * Registers route handlers.
    *
@@ -81,11 +80,13 @@ export class App {
    * 3. Register 'game' route -> showGameScreen()
    */
   private registerRoutes() {
-    throw new Error('Not implemented');
+    this.router.register('title', () => this.showTitleScreen());
+    this.router.register('levels', (params) => this.showLevelSelect(params));
+    this.router.register('game', (params) => this.showGameScreen(params));
   }
 
   /**
-   * TODO: Implement showTitleScreen()
+   * Implement showTitleScreen()
    *
    * Shows the title screen.
    *
@@ -94,12 +95,14 @@ export class App {
    * 2. Create <title-screen> element
    * 3. Append to root
    */
-  private showTitleScreen(params: any) {
-    throw new Error('Not implemented');
+  private showTitleScreen() {
+    this.root.innerHTML = '';
+    const screen = document.createElement('title-screen');
+    this.root.appendChild(screen);
   }
 
   /**
-   * TODO: Implement showLevelSelect()
+   * Implement showLevelSelect()
    *
    * Shows the level select screen.
    *
@@ -110,11 +113,14 @@ export class App {
    * 4. Append to root
    */
   private showLevelSelect(params: any) {
-    throw new Error('Not implemented');
+    this.root.innerHTML = '';
+    const screen = document.createElement('level-select');
+    screen.setAttribute('theme-id', params?.theme || 'fantasy');
+    this.root.appendChild(screen);
   }
 
   /**
-   * TODO: Implement showGameScreen()
+   * Implement showGameScreen()
    *
    * Shows the game screen.
    *
@@ -125,11 +131,15 @@ export class App {
    * 4. Append to root
    */
   private showGameScreen(params: any) {
-    throw new Error('Not implemented');
+    this.root.innerHTML = '';
+    const screen = document.createElement('game-screen');
+    screen.setAttribute('theme-id', params?.theme || 'fantasy');
+    screen.setAttribute('level', (params?.level || 1).toString());
+    this.root.appendChild(screen);
   }
 
   /**
-   * TODO: Implement checkFeatures()
+   * Implement checkFeatures()
    *
    * Checks browser feature support.
    *
@@ -139,6 +149,14 @@ export class App {
    * 3. Log feature support to console
    */
   private checkFeatures() {
-    throw new Error('Not implemented');
+    if (!features.speechSynthesis) {
+      showFeatureWarning('speechSynthesis');
+    }
+
+    if (!features.localStorage) {
+      showFeatureWarning('localStorage');
+    }
+
+    console.log('Browser Features:', features);
   }
 }

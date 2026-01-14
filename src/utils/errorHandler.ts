@@ -9,8 +9,6 @@
  */
 
 /**
- * TODO: Implement initErrorHandling()
- *
  * Sets up global error handlers.
  *
  * Steps:
@@ -23,12 +21,19 @@
  *    - Call event.preventDefault()
  */
 export function initErrorHandling(): void {
-  throw new Error('Not implemented');
+  window.onerror = (message, _source, _lineno, _colno, error) => {
+    console.error('Global error:', error || message);
+    showErrorToast('An error occurred. Please try again.');
+    return true;
+  };
+
+  window.onunhandledrejection = (event: PromiseRejectionEvent) => {
+    console.error('Unhandled promise rejection:', event.reason);
+    event.preventDefault();
+  };
 }
 
 /**
- * TODO: Implement showErrorToast()
- *
  * Displays a non-intrusive error message.
  *
  * Steps:
@@ -39,5 +44,16 @@ export function initErrorHandling(): void {
  * 5. Remove after 5 seconds
  */
 export function showErrorToast(message: string): void {
-  throw new Error('Not implemented');
+  const toast = document.createElement('div');
+  toast.className = 'error-toast';
+  toast.textContent = message;
+  toast.style.position = 'fixed';
+  toast.style.bottom = '20px';
+  toast.style.left = '50%';
+  toast.style.transform = 'translateX(-50%)';
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.remove();
+  }, 5000);
 }

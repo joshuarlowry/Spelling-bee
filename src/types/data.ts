@@ -15,7 +15,8 @@
 // - word: string (the word to spell)
 // - sentence: string (example sentence using the word)
 export interface Word {
-  // Add properties here
+  word: string;
+  sentence: string;
 }
 
 // TODO: Define Level interface
@@ -26,7 +27,11 @@ export interface Word {
 // - stars_required: number (stars needed to unlock this level)
 // - words: Word[] (array of words in this level)
 export interface Level {
-  // Add properties here
+  level: number;
+  name: string;
+  description: string;
+  stars_required: number;
+  words: Word[];
 }
 
 // TODO: Define Theme interface
@@ -36,7 +41,10 @@ export interface Level {
 // - icon: string (icon name or path)
 // - description: string (theme description)
 export interface Theme {
-  // Add properties here
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
 }
 
 // TODO: Define WordList interface
@@ -45,5 +53,6 @@ export interface Theme {
 // - theme: Theme (theme metadata)
 // - levels: Level[] (array of levels)
 export interface WordList {
-  // Add properties here
+  theme: Theme;
+  levels: Level[];
 }
