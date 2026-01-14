@@ -81,14 +81,15 @@ describe('StorageService', () => {
         settings: { soundEnabled: true, speechEnabled: true, speechRate: 0.85 },
       };
 
-      const before = new Date().toISOString();
+      const before = new Date().getTime();
       service.saveProgress(progress);
-      const after = new Date().toISOString();
+      const after = new Date().getTime();
 
       const saved = localStorage.getItem(STORAGE_KEY);
       const parsed = JSON.parse(saved!);
-      expect(parsed.lastPlayed).toBeGreaterThanOrEqual(before);
-      expect(parsed.lastPlayed).toBeLessThanOrEqual(after);
+      const savedTime = new Date(parsed.lastPlayed).getTime();
+      expect(savedTime).toBeGreaterThanOrEqual(before);
+      expect(savedTime).toBeLessThanOrEqual(after);
     });
   });
 

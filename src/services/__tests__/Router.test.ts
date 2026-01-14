@@ -21,6 +21,7 @@ describe('Router', () => {
       });
 
       window.location.hash = '#/';
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
       expect(handlerCalled).toBe(true);
     });
   });
@@ -80,18 +81,13 @@ describe('Router', () => {
       expect(router.current).toBe('title');
 
       router.navigate('levels', { theme: 'fantasy' });
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
       expect(router.current).toBe('levels');
     });
   });
 
   describe('route handling', () => {
     it('should call appropriate handler on route change', () => {
-      const handlers = {
-        title: () => {},
-        levels: (params: any) => {},
-        game: (params: any) => {},
-      };
-
       let titleCalled = false;
       let levelsCalled = false;
 
@@ -103,6 +99,7 @@ describe('Router', () => {
       });
 
       window.location.hash = '#/theme/fantasy';
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
       expect(titleCalled).toBe(false);
       expect(levelsCalled).toBe(true);
     });
@@ -115,6 +112,7 @@ describe('Router', () => {
       });
 
       router.navigate('levels', { theme: 'scifi' });
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
       expect(receivedTheme).toBe('scifi');
     });
   });
