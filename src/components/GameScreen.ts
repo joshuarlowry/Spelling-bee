@@ -63,50 +63,79 @@ export class GameScreen extends HTMLElement {
         :host {
           display: block;
           width: 100%;
-          height: 100vh;
+          min-height: 100vh;
         }
 
         .game-screen {
           width: 100%;
-          height: 100%;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          padding: 20px;
+          min-height: 100vh;
+          background: linear-gradient(135deg, #ffc9e3 0%, #bae6fd 50%, #fef08a 100%);
+          padding: 24px;
           overflow-y: auto;
           display: flex;
           flex-direction: column;
+          position: relative;
+        }
+
+        /* Decorative elements */
+        .game-screen::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-image:
+            radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+          pointer-events: none;
         }
 
         game-header {
-          margin-bottom: 20px;
+          margin-bottom: 24px;
+          position: relative;
+          z-index: 1;
         }
 
         word-display {
-          margin-bottom: 20px;
+          margin-bottom: 32px;
+          position: relative;
+          z-index: 1;
         }
 
         .letter-boxes-area {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 12px;
-          padding: 20px;
-          margin-bottom: 20px;
-          min-height: 100px;
+          background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
+          border-radius: 24px;
+          padding: 40px 24px;
+          margin-bottom: 32px;
+          min-height: 140px;
           display: flex;
           align-items: center;
           justify-content: center;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+          border: 4px solid rgba(255, 255, 255, 0.6);
+          backdrop-filter: blur(10px);
+          position: relative;
+          z-index: 1;
         }
 
         .letter-boxes-container {
           display: flex;
-          gap: 8px;
+          gap: 12px;
           flex-wrap: wrap;
           justify-content: center;
+          align-items: center;
         }
 
         .action-buttons {
           display: flex;
-          gap: 20px;
+          gap: 16px;
           justify-content: center;
           flex-wrap: wrap;
+          position: relative;
+          z-index: 1;
+          margin-top: auto;
+          padding-top: 24px;
         }
 
         hear-again-button,

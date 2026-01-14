@@ -38,65 +38,79 @@ export class WordDisplay extends HTMLElement {
       <style>
         .word-display {
           display: flex;
+          flex-direction: column;
           align-items: center;
-          gap: 16px;
-          padding: 20px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          border-radius: 12px;
-          margin-bottom: 20px;
+          gap: 20px;
+          padding: 32px;
+          background: linear-gradient(135deg, #ff3388 0%, #ff61a8 50%, #ff9dca 100%);
+          border-radius: 24px;
+          margin-bottom: 24px;
+          box-shadow: 0 10px 30px rgba(255, 51, 136, 0.3);
+          border: 4px solid rgba(255, 255, 255, 0.5);
         }
 
         .speaker-button {
-          flex-shrink: 0;
-          width: 48px;
-          height: 48px;
+          width: 72px;
+          height: 72px;
           border-radius: 50%;
-          background: white;
-          border: none;
-          font-size: 24px;
+          background: linear-gradient(135deg, #fff 0%, #ffe4f0 100%);
+          border: 4px solid rgba(255, 255, 255, 0.8);
+          font-size: 36px;
           cursor: pointer;
-          transition: all 0.2s;
+          transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
           display: flex;
           align-items: center;
           justify-content: center;
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+          animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+          }
+          50% {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 51, 136, 0.3);
+          }
         }
 
         .speaker-button:hover {
-          transform: scale(1.1);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+          transform: scale(1.15);
+          box-shadow: 0 8px 30px rgba(255, 51, 136, 0.4);
+          background: linear-gradient(135deg, #ffe4f0 0%, #fff 100%);
         }
 
         .speaker-button:active {
           transform: scale(0.95);
         }
 
-        .word-text {
-          font-size: 32px;
-          font-weight: bold;
-          color: white;
-          font-family: 'Arial', sans-serif;
-          letter-spacing: 2px;
-        }
-
         .sentence-text {
-          font-size: 16px;
-          color: rgba(255, 255, 255, 0.9);
+          font-size: 20px;
+          font-weight: 600;
+          color: white;
           font-style: italic;
-          width: 100%;
           text-align: center;
-          margin-top: 8px;
+          line-height: 1.6;
+          text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+          max-width: 600px;
         }
 
-        .text-container {
-          flex: 1;
+        .instruction-text {
+          font-size: 14px;
+          color: rgba(255, 255, 255, 0.9);
+          text-align: center;
+          font-weight: 500;
+          background: rgba(255, 255, 255, 0.2);
+          padding: 8px 16px;
+          border-radius: 12px;
         }
       </style>
       <div class="word-display">
-        <button class="speaker-button">🔊</button>
-        <div class="text-container">
-          <div class="word-text"></div>
-          <div class="sentence-text"></div>
-        </div>
+        <div class="instruction-text">🎧 Listen carefully and spell the word!</div>
+        <button class="speaker-button" title="Click to hear the word again">🔊</button>
+        <div class="sentence-text"></div>
       </div>
     `;
 
@@ -111,10 +125,8 @@ export class WordDisplay extends HTMLElement {
 
   setWord(word: string) {
     this.word = word;
-    const wordText = this.shadowRoot?.querySelector('.word-text');
-    if (wordText) {
-      wordText.textContent = word;
-    }
+    // DON'T display the word - this is a spelling game!
+    // The word is only stored for the speaker button functionality
   }
 
   setSentence(sentence: string) {
