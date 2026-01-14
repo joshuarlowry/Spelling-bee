@@ -272,6 +272,7 @@ export class CelebrationModal extends HTMLElement {
     this.dispatchEvent(
       new CustomEvent('continue', {
         bubbles: true,
+        composed: true,
       })
     );
   }
