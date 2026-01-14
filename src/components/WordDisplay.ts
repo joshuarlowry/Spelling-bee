@@ -14,93 +14,122 @@
  * 8. Register custom element
  */
 
+import { speechService } from '../services/SpeechService';
+import { audioService } from '../services/AudioService';
+
 export class WordDisplay extends HTMLElement {
   private word: string = '';
   private sentence: string = '';
+  private speechService = speechService;
+  private audioService = audioService;
 
   constructor() {
     super();
-    /**
-     * TODO: Initialize component
-     *
-     * Steps:
-     * 1. Call this.attachShadow({ mode: 'open' })
-     */
-    throw new Error('Not implemented');
+    this.attachShadow({ mode: 'open' });
   }
 
-  /**
-   * TODO: Implement connectedCallback()
-   *
-   * Steps:
-   * 1. Call this.render()
-   */
   connectedCallback() {
-    throw new Error('Not implemented');
+    this.render();
   }
 
-  /**
-   * TODO: Implement render()
-   *
-   * Creates the component template.
-   *
-   * Steps:
-   * 1. Set this.shadowRoot!.innerHTML to template:
-   *    - <style> with:
-   *      - .word-display container styles
-   *      - .speaker-button styles
-   *      - .word-text and .sentence-text styles
-   *    - <div class="word-display">
-   *      - <button class="speaker-button">🔊</button>
-   *      - <div class="word-text"></div>
-   *      - <div class="sentence-text"></div>
-   * 2. Add click listener to speaker button
-   */
   private render() {
-    throw new Error('Not implemented');
+    const template = document.createElement('template');
+    template.innerHTML = `
+      <style>
+        .word-display {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding: 20px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border-radius: 12px;
+          margin-bottom: 20px;
+        }
+
+        .speaker-button {
+          flex-shrink: 0;
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          background: white;
+          border: none;
+          font-size: 24px;
+          cursor: pointer;
+          transition: all 0.2s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .speaker-button:hover {
+          transform: scale(1.1);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .speaker-button:active {
+          transform: scale(0.95);
+        }
+
+        .word-text {
+          font-size: 32px;
+          font-weight: bold;
+          color: white;
+          font-family: 'Arial', sans-serif;
+          letter-spacing: 2px;
+        }
+
+        .sentence-text {
+          font-size: 16px;
+          color: rgba(255, 255, 255, 0.9);
+          font-style: italic;
+          width: 100%;
+          text-align: center;
+          margin-top: 8px;
+        }
+
+        .text-container {
+          flex: 1;
+        }
+      </style>
+      <div class="word-display">
+        <button class="speaker-button">🔊</button>
+        <div class="text-container">
+          <div class="word-text"></div>
+          <div class="sentence-text"></div>
+        </div>
+      </div>
+    `;
+
+    if (this.shadowRoot) {
+      this.shadowRoot.appendChild(template.content.cloneNode(true));
+      const speakerButton = this.shadowRoot.querySelector('.speaker-button');
+      if (speakerButton) {
+        speakerButton.addEventListener('click', () => this.handleSpeakerClick());
+      }
+    }
   }
 
-  /**
-   * TODO: Implement setWord()
-   *
-   * Updates the displayed word.
-   *
-   * Steps:
-   * 1. Set this.word = word
-   * 2. Update word-text element textContent
-   */
   setWord(word: string) {
-    throw new Error('Not implemented');
+    this.word = word;
+    const wordText = this.shadowRoot?.querySelector('.word-text');
+    if (wordText) {
+      wordText.textContent = word;
+    }
   }
 
-  /**
-   * TODO: Implement setSentence()
-   *
-   * Updates the displayed sentence.
-   *
-   * Steps:
-   * 1. Set this.sentence = sentence
-   * 2. Update sentence-text element textContent
-   */
   setSentence(sentence: string) {
-    throw new Error('Not implemented');
+    this.sentence = sentence;
+    const sentenceText = this.shadowRoot?.querySelector('.sentence-text');
+    if (sentenceText) {
+      sentenceText.textContent = sentence;
+    }
   }
 
-  /**
-   * TODO: Implement handleSpeakerClick()
-   *
-   * Replays word and sentence.
-   *
-   * Steps:
-   * 1. Call speechService.speakWord(this.word)
-   * 2. Wait for completion
-   * 3. Call speechService.speakSentence(this.sentence)
-   * 4. Play 'click' sound via audioService
-   */
   private async handleSpeakerClick() {
-    throw new Error('Not implemented');
+    this.audioService.play('click');
+    await this.speechService.speakWord(this.word);
+    await this.speechService.speakSentence(this.sentence);
   }
 }
 
-// TODO: Register custom element
-// customElements.define('word-display', WordDisplay);
+customElements.define('word-display', WordDisplay);

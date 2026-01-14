@@ -24,193 +24,194 @@ export class LetterBox extends HTMLElement {
   private correctLetter!: string;
   private isRevealed: boolean = false;
 
-  /**
-   * TODO: Define observed attributes
-   *
-   * Steps:
-   * 1. Return array: ['letter', 'index', 'disabled']
-   */
   static get observedAttributes() {
-    throw new Error('Not implemented');
+    return ['letter', 'index', 'disabled'];
   }
 
   constructor() {
     super();
-    /**
-     * TODO: Initialize component
-     *
-     * Steps:
-     * 1. Call this.attachShadow({ mode: 'open' })
-     */
-    throw new Error('Not implemented');
+    this.attachShadow({ mode: 'open' });
   }
 
-  /**
-   * TODO: Implement connectedCallback()
-   *
-   * Called when element is added to DOM.
-   *
-   * Steps:
-   * 1. Call this.render()
-   * 2. Call this.setupEventListeners()
-   */
   connectedCallback() {
-    throw new Error('Not implemented');
+    this.render();
+    this.setupEventListeners();
   }
 
-  /**
-   * TODO: Implement render()
-   *
-   * Creates the component template.
-   *
-   * Steps:
-   * 1. Set this.shadowRoot!.innerHTML to template string:
-   *    - Include <style> tag with:
-   *      - :host { display: inline-block; }
-   *      - .letter-box styles (border, padding, background, etc.)
-   *      - .letter-box:focus-within (border color, box shadow)
-   *      - .letter-box.correct (green background, animation)
-   *      - .letter-box.incorrect (red background, shake animation)
-   *      - input styles (no border, transparent background, centered text)
-   *      - @keyframes pop (scale animation)
-   *      - @keyframes shake (translateX animation)
-   *    - Include <div class="letter-box"> with <input> inside
-   *    - Input attributes: type="text", maxlength="1", autocomplete="off", etc.
-   * 2. Query and store input element: this.input = this.shadowRoot!.querySelector('input')!
-   */
   private render() {
-    throw new Error('Not implemented');
+    const template = document.createElement('template');
+    template.innerHTML = `
+      <style>
+        :host {
+          display: inline-block;
+        }
+
+        .letter-box {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 60px;
+          height: 60px;
+          border: 3px solid #667eea;
+          border-radius: 8px;
+          background: white;
+          margin: 8px;
+          transition: all 0.2s;
+          position: relative;
+        }
+
+        .letter-box:focus-within {
+          border-color: #764ba2;
+          box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .letter-box.correct {
+          background: #2ecc71;
+          border-color: #27ae60;
+          animation: pop 0.4s ease-out;
+        }
+
+        .letter-box.incorrect {
+          background: #e74c3c;
+          border-color: #c0392b;
+          animation: shake 0.3s ease-in-out;
+        }
+
+        input {
+          width: 100%;
+          height: 100%;
+          border: none;
+          background: transparent;
+          font-size: 32px;
+          font-weight: bold;
+          text-align: center;
+          text-transform: uppercase;
+          color: #333;
+          outline: none;
+          font-family: 'Arial', sans-serif;
+        }
+
+        input:disabled {
+          color: white;
+        }
+
+        @keyframes pop {
+          0% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.15);
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+
+        @keyframes shake {
+          0%, 100% {
+            transform: translateX(0);
+          }
+          25% {
+            transform: translateX(-8px);
+          }
+          75% {
+            transform: translateX(8px);
+          }
+        }
+      </style>
+      <div class="letter-box">
+        <input type="text" maxlength="1" autocomplete="off" />
+      </div>
+    `;
+
+    if (this.shadowRoot) {
+      this.shadowRoot.appendChild(template.content.cloneNode(true));
+      this.input = this.shadowRoot.querySelector('input')!;
+    }
   }
 
-  /**
-   * TODO: Implement setupEventListeners()
-   *
-   * Attaches event listeners.
-   *
-   * Steps:
-   * 1. Add 'input' listener to this.input that calls this.handleInput()
-   * 2. Add 'keydown' listener to this.input that calls this.handleKeydown()
-   */
   private setupEventListeners() {
-    throw new Error('Not implemented');
+    this.input.addEventListener('input', (e) => this.handleInput(e));
+    this.input.addEventListener('keydown', (e) => this.handleKeydown(e));
   }
 
-  /**
-   * TODO: Implement handleInput()
-   *
-   * Handles letter input.
-   *
-   * Steps:
-   * 1. Get input value and convert to lowercase
-   * 2. If value is empty, return early
-   * 3. If value === this.correctLetter:
-   *    - Call this.markCorrect()
-   *    - Dispatch 'letter-correct' CustomEvent with detail: { index, letter: value }
-   * 4. Else:
-   *    - Call this.markIncorrect()
-   *    - Dispatch 'letter-incorrect' CustomEvent with detail: { index, letter: value }
-   * 5. Set bubbles: true on events
-   */
   private handleInput(e: Event) {
-    throw new Error('Not implemented');
+    const value = this.input.value.toLowerCase();
+
+    if (!value) {
+      return;
+    }
+
+    if (value === this.correctLetter) {
+      this.markCorrect();
+      this.dispatchEvent(
+        new CustomEvent('letter-correct', {
+          detail: { index: this.index, letter: value },
+          bubbles: true,
+        })
+      );
+    } else {
+      this.markIncorrect();
+      this.dispatchEvent(
+        new CustomEvent('letter-incorrect', {
+          detail: { index: this.index, letter: value },
+          bubbles: true,
+        })
+      );
+    }
   }
 
-  /**
-   * TODO: Implement handleKeydown()
-   *
-   * Handles keyboard navigation.
-   *
-   * Steps:
-   * 1. If key is 'Backspace' AND input is empty:
-   *    - Dispatch 'focus-previous' CustomEvent with detail: { index }
-   *    - Set bubbles: true
-   */
   private handleKeydown(e: KeyboardEvent) {
-    throw new Error('Not implemented');
+    if (e.key === 'Backspace' && this.input.value === '') {
+      this.dispatchEvent(
+        new CustomEvent('focus-previous', {
+          detail: { index: this.index },
+          bubbles: true,
+        })
+      );
+    }
   }
 
-  /**
-   * TODO: Implement markCorrect()
-   *
-   * Shows success state.
-   *
-   * Steps:
-   * 1. Get letter box element from shadow DOM
-   * 2. Add 'correct' class
-   * 3. Set input value to correctLetter.toUpperCase()
-   * 4. Set input.disabled = true
-   * 5. Set this.isRevealed = true
-   */
   private markCorrect() {
-    throw new Error('Not implemented');
+    const letterBox = this.shadowRoot?.querySelector('.letter-box');
+    if (letterBox) {
+      letterBox.classList.add('correct');
+    }
+    this.input.value = this.correctLetter.toUpperCase();
+    this.input.disabled = true;
+    this.isRevealed = true;
   }
 
-  /**
-   * TODO: Implement markIncorrect()
-   *
-   * Shows error state briefly.
-   *
-   * Steps:
-   * 1. Get letter box element from shadow DOM
-   * 2. Add 'incorrect' class
-   * 3. After 300ms:
-   *    - Remove 'incorrect' class
-   *    - Clear input value
-   *    - Focus input
-   * 4. Use setTimeout() for delay
-   */
   private markIncorrect() {
-    throw new Error('Not implemented');
+    const letterBox = this.shadowRoot?.querySelector('.letter-box');
+    if (letterBox) {
+      letterBox.classList.add('incorrect');
+    }
+
+    setTimeout(() => {
+      if (letterBox) {
+        letterBox.classList.remove('incorrect');
+      }
+      this.input.value = '';
+      this.input.focus();
+    }, 300);
   }
 
-  /**
-   * TODO: Implement reveal()
-   *
-   * Reveals the correct letter (help feature).
-   *
-   * Steps:
-   * 1. Call this.markCorrect()
-   */
   reveal() {
-    throw new Error('Not implemented');
+    this.markCorrect();
   }
 
-  /**
-   * TODO: Implement focus()
-   *
-   * Focuses the input.
-   *
-   * Steps:
-   * 1. Call this.input.focus()
-   */
   focus() {
-    throw new Error('Not implemented');
+    this.input.focus();
   }
 
-  /**
-   * TODO: Implement index getter
-   *
-   * Gets the box index from attribute.
-   *
-   * Steps:
-   * 1. Return parseInt(this.getAttribute('index') || '0')
-   */
   get index(): number {
-    throw new Error('Not implemented');
+    return parseInt(this.getAttribute('index') || '0');
   }
 
-  /**
-   * TODO: Implement letter setter
-   *
-   * Sets the correct letter.
-   *
-   * Steps:
-   * 1. Set this.correctLetter = value.toLowerCase()
-   */
   set letter(value: string) {
-    throw new Error('Not implemented');
+    this.correctLetter = value.toLowerCase();
   }
 }
 
-// TODO: Register custom element
-// customElements.define('letter-box', LetterBox);
+customElements.define('letter-box', LetterBox);

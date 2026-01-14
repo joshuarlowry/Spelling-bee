@@ -14,93 +14,119 @@
  * 8. Register custom element
  */
 
+import { audioService } from '../services/AudioService';
+
 export class GameHeader extends HTMLElement {
+  private audioService = audioService;
+
   constructor() {
     super();
-    /**
-     * TODO: Initialize component
-     *
-     * Steps:
-     * 1. Call this.attachShadow({ mode: 'open' })
-     */
-    throw new Error('Not implemented');
+    this.attachShadow({ mode: 'open' });
   }
 
-  /**
-   * TODO: Implement connectedCallback()
-   *
-   * Steps:
-   * 1. Call this.render()
-   */
   connectedCallback() {
-    throw new Error('Not implemented');
+    this.render();
   }
 
-  /**
-   * TODO: Implement render()
-   *
-   * Creates the header template.
-   *
-   * Steps:
-   * 1. Set this.shadowRoot!.innerHTML to template:
-   *    - <style> with:
-   *      - .header container (flex, space-between)
-   *      - .back-button styles
-   *      - .level-info styles
-   *      - .score-display styles
-   *      - .progress-indicator styles
-   *    - <div class="header">
-   *      - <button class="back-button">← Back</button>
-   *      - <div class="center-info">
-   *        - <div class="level-info">Level X</div>
-   *        - <div class="progress-indicator">Word X of Y</div>
-   *      - <div class="score-display">Score: 0</div>
-   * 2. Add click listener to back button
-   */
   private render() {
-    throw new Error('Not implemented');
+    const template = document.createElement('template');
+    template.innerHTML = `
+      <style>
+        .header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 16px;
+          background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border-radius: 8px;
+          margin-bottom: 20px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-button {
+          background: rgba(255, 255, 255, 0.2);
+          color: white;
+          border: 2px solid white;
+          padding: 8px 12px;
+          border-radius: 6px;
+          cursor: pointer;
+          font-weight: bold;
+          font-size: 14px;
+          transition: all 0.2s;
+        }
+
+        .back-button:hover {
+          background: rgba(255, 255, 255, 0.3);
+          transform: scale(1.05);
+        }
+
+        .back-button:active {
+          transform: scale(0.95);
+        }
+
+        .center-info {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .level-info {
+          font-size: 18px;
+          font-weight: bold;
+        }
+
+        .progress-indicator {
+          font-size: 12px;
+          opacity: 0.9;
+        }
+
+        .score-display {
+          font-size: 18px;
+          font-weight: bold;
+          background: rgba(255, 255, 255, 0.2);
+          padding: 8px 12px;
+          border-radius: 6px;
+        }
+      </style>
+      <div class="header">
+        <button class="back-button">← Back</button>
+        <div class="center-info">
+          <div class="level-info">Level 1</div>
+          <div class="progress-indicator">Word 1 of 10</div>
+        </div>
+        <div class="score-display">Score: 0</div>
+      </div>
+    `;
+
+    if (this.shadowRoot) {
+      this.shadowRoot.appendChild(template.content.cloneNode(true));
+      const backButton = this.shadowRoot.querySelector('.back-button');
+      if (backButton) {
+        backButton.addEventListener('click', () => this.handleBackClick());
+      }
+    }
   }
 
-  /**
-   * TODO: Implement updateScore()
-   *
-   * Updates the score display.
-   *
-   * Steps:
-   * 1. Query score-display element
-   * 2. Set textContent to `Score: ${score}`
-   */
   updateScore(score: number) {
-    throw new Error('Not implemented');
+    const scoreDisplay = this.shadowRoot?.querySelector('.score-display');
+    if (scoreDisplay) {
+      scoreDisplay.textContent = `Score: ${score}`;
+    }
   }
 
-  /**
-   * TODO: Implement updateProgress()
-   *
-   * Updates word progress indicator.
-   *
-   * Steps:
-   * 1. Query progress-indicator element
-   * 2. Set textContent to `Word ${current} of ${total}`
-   */
   updateProgress(current: number, total: number) {
-    throw new Error('Not implemented');
+    const progressIndicator = this.shadowRoot?.querySelector('.progress-indicator');
+    if (progressIndicator) {
+      progressIndicator.textContent = `Word ${current} of ${total}`;
+    }
   }
 
-  /**
-   * TODO: Implement handleBackClick()
-   *
-   * Handles back button click.
-   *
-   * Steps:
-   * 1. Dispatch 'back' CustomEvent
-   * 2. Set bubbles: true
-   * 3. Play 'click' sound via audioService
-   */
   private handleBackClick() {
-    throw new Error('Not implemented');
+    this.audioService.play('click');
+    this.dispatchEvent(new CustomEvent('back', { bubbles: true }));
   }
 }
 
-// TODO: Register custom element
-// customElements.define('game-header', GameHeader);
+customElements.define('game-header', GameHeader);

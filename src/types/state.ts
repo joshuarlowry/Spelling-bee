@@ -13,6 +13,9 @@
 
 import { Word } from './data';
 
+// Export Word from data types
+export type { Word };
+
 // TODO: Define GameState interface
 // This tracks the current game session (in-memory only)
 // Should include:
