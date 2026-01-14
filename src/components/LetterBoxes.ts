@@ -80,6 +80,7 @@ export class LetterBoxes {
 
   private handleLetterIncorrect() {
     this.audioService.play('incorrect');
+    this.speechService.speak('Try again');
   }
 
   private handleFocusPrevious(e: CustomEvent) {
@@ -120,6 +121,7 @@ export class LetterBoxes {
       this.container.dispatchEvent(
         new CustomEvent('word-complete', {
           bubbles: true,
+          composed: true,
         })
       );
     }

@@ -161,6 +161,7 @@ export class LetterBox extends HTMLElement {
         new CustomEvent('letter-correct', {
           detail: { index: this.index, letter: value },
           bubbles: true,
+          composed: true,
         })
       );
     } else {
@@ -169,6 +170,7 @@ export class LetterBox extends HTMLElement {
         new CustomEvent('letter-incorrect', {
           detail: { index: this.index, letter: value },
           bubbles: true,
+          composed: true,
         })
       );
     }
@@ -180,6 +182,7 @@ export class LetterBox extends HTMLElement {
         new CustomEvent('focus-previous', {
           detail: { index: this.index },
           bubbles: true,
+          composed: true,
         })
       );
     }

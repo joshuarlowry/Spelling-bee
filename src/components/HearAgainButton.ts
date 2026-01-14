@@ -80,7 +80,7 @@ export class HearAgainButton extends HTMLElement {
 
   private handleClick() {
     this.audioService.play('click');
-    this.dispatchEvent(new CustomEvent('hear-again', { bubbles: true }));
+    this.dispatchEvent(new CustomEvent('hear-again', { bubbles: true, composed: true }));
   }
 }
 

@@ -82,7 +82,7 @@ export class HelpButton extends HTMLElement {
 
   private handleClick() {
     this.audioService.play('click');
-    this.dispatchEvent(new CustomEvent('help-requested', { bubbles: true }));
+    this.dispatchEvent(new CustomEvent('help-requested', { bubbles: true, composed: true }));
     this.setDisabled(true);
   }
 

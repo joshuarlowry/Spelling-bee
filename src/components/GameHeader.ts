@@ -138,7 +138,7 @@ export class GameHeader extends HTMLElement {
 
   private handleBackClick() {
     this.audioService.play('click');
-    this.dispatchEvent(new CustomEvent('back', { bubbles: true }));
+    this.dispatchEvent(new CustomEvent('back', { bubbles: true, composed: true }));
   }
 }
 
