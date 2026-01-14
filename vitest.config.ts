@@ -8,7 +8,6 @@ export default defineConfig({
     setupFiles: [],
     testTimeout: 15000,
     threads: false,
-    isolate: true,
   },
   resolve: {
     alias: {
