@@ -99,16 +99,16 @@ describe('StorageService', () => {
 
       const progress = service.getProgress();
       expect(progress?.themes['fantasy']).toBeDefined();
-      expect(progress?.themes['fantasy'].currentLevel).toBe(1);
+      expect(progress?.themes['fantasy']?.currentLevel).toBe(1);
     });
 
     it('should create level if it does not exist', () => {
       service.updateLevelProgress('fantasy', 1, { score: 100, stars: 3 });
 
       const progress = service.getProgress();
-      expect(progress?.themes['fantasy'].levels[1]).toBeDefined();
-      expect(progress?.themes['fantasy'].levels[1].score).toBe(100);
-      expect(progress?.themes['fantasy'].levels[1].stars).toBe(3);
+      expect(progress?.themes['fantasy']?.levels[1]).toBeDefined();
+      expect(progress?.themes['fantasy']?.levels[1]?.score).toBe(100);
+      expect(progress?.themes['fantasy']?.levels[1]?.stars).toBe(3);
     });
 
     it('should update existing level progress', () => {
@@ -116,8 +116,8 @@ describe('StorageService', () => {
       service.updateLevelProgress('fantasy', 1, { score: 100, stars: 3 });
 
       const progress = service.getProgress();
-      expect(progress?.themes['fantasy'].levels[1].score).toBe(100);
-      expect(progress?.themes['fantasy'].levels[1].stars).toBe(3);
+      expect(progress?.themes['fantasy']?.levels[1]?.score).toBe(100);
+      expect(progress?.themes['fantasy']?.levels[1]?.stars).toBe(3);
     });
 
     it('should recalculate total score for theme', () => {
@@ -125,7 +125,7 @@ describe('StorageService', () => {
       service.updateLevelProgress('fantasy', 2, { score: 150 });
 
       const progress = service.getProgress();
-      expect(progress?.themes['fantasy'].totalScore).toBe(250);
+      expect(progress?.themes['fantasy']?.totalScore).toBe(250);
     });
   });
 

@@ -21,7 +21,7 @@
  *    - Call event.preventDefault()
  */
 export function initErrorHandling(): void {
-  window.onerror = (message, source, lineno, colno, error) => {
+  window.onerror = (message, _source, _lineno, _colno, error) => {
     console.error('Global error:', error || message);
     showErrorToast('An error occurred. Please try again.');
     return true;

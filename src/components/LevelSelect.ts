@@ -202,7 +202,7 @@ export class LevelSelect extends HTMLElement {
 
       const maxLevels = 10;
       for (let level = 1; level <= maxLevels; level++) {
-        const unlocked = this.isLevelUnlocked(level, themeProgress);
+        const unlocked = this.isLevelUnlocked(level);
         const levelData = this.levelProgressMap[level];
 
         const card = document.createElement('div');
@@ -235,7 +235,7 @@ export class LevelSelect extends HTMLElement {
     }
   }
 
-  private isLevelUnlocked(levelNum: number, progress: any): boolean {
+  private isLevelUnlocked(levelNum: number): boolean {
     if (levelNum === 1) {
       return true;
     }
@@ -250,7 +250,7 @@ export class LevelSelect extends HTMLElement {
   }
 
   private handleLevelSelect(levelNum: number) {
-    if (!this.isLevelUnlocked(levelNum, null)) {
+    if (!this.isLevelUnlocked(levelNum)) {
       return;
     }
 
