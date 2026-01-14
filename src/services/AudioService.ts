@@ -13,26 +13,24 @@
  * 7. Add isEnabled getter
  */
 
-// TODO: Import { Howl, Howler } from 'howler'
-// TODO: Import SoundName from '../types/services'
+import { Howl, Howler } from 'howler';
+import { SoundName } from '../types/services';
 
 export class AudioService {
-  private sounds: Map<string, any> = new Map(); // Replace 'any' with Howl
+  private sounds: Map<SoundName, Howl> = new Map();
   private enabled: boolean = true;
 
   constructor() {
     /**
-     * TODO: Initialize audio service
+     * Initialize audio service
      *
      * Steps:
      * 1. Call this.preloadSounds()
      */
-    throw new Error('Not implemented');
+    this.preloadSounds();
   }
 
   /**
-   * TODO: Implement preloadSounds()
-   *
    * Preloads all sound effects.
    *
    * Steps:
@@ -51,12 +49,25 @@ export class AudioService {
    * 4. Store in this.sounds Map with name as key
    */
   private preloadSounds(): void {
-    throw new Error('Not implemented');
+    const soundFiles: { [key in SoundName]: string } = {
+      correct: '/audio/correct.mp3',
+      incorrect: '/audio/incorrect.mp3',
+      complete: '/audio/complete.mp3',
+      levelup: '/audio/levelup.mp3',
+      click: '/audio/click.mp3',
+    };
+
+    for (const [name, src] of Object.entries(soundFiles)) {
+      const howl = new Howl({
+        src: [src],
+        preload: true,
+        volume: name === 'incorrect' ? 0.5 : 0.7,
+      });
+      this.sounds.set(name as SoundName, howl);
+    }
   }
 
   /**
-   * TODO: Implement play()
-   *
    * Plays a sound effect.
    *
    * Steps:
@@ -64,13 +75,16 @@ export class AudioService {
    * 2. Get Howl from this.sounds Map
    * 3. If found, call howl.play()
    */
-  play(sound: string): void {
-    throw new Error('Not implemented');
+  play(sound: SoundName): void {
+    if (!this.enabled) return;
+
+    const howl = this.sounds.get(sound);
+    if (howl) {
+      howl.play();
+    }
   }
 
   /**
-   * TODO: Implement setEnabled()
-   *
    * Enables or disables sound effects.
    *
    * Steps:
@@ -78,19 +92,18 @@ export class AudioService {
    * 2. Call Howler.mute(!enabled) to mute all sounds
    */
   setEnabled(enabled: boolean): void {
-    throw new Error('Not implemented');
+    this.enabled = enabled;
+    Howler.mute(!enabled);
   }
 
   /**
-   * TODO: Implement isEnabled getter
-   *
    * Returns whether sounds are enabled.
    *
    * Steps:
    * 1. Return this.enabled
    */
   get isEnabled(): boolean {
-    throw new Error('Not implemented');
+    return this.enabled;
   }
 }
 

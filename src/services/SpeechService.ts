@@ -16,7 +16,7 @@
  * 10. Add isSupported getter - check if speech API available
  */
 
-// TODO: Import SpeechOptions from '../types/services'
+import { SpeechOptions } from '../types/services';
 
 export class SpeechService {
   private synth: SpeechSynthesis;
@@ -25,18 +25,17 @@ export class SpeechService {
 
   constructor() {
     /**
-     * TODO: Initialize speech service
+     * Initialize speech service
      *
      * Steps:
      * 1. Set this.synth = window.speechSynthesis
      * 2. Set this.ready = this.initVoice()
      */
-    throw new Error('Not implemented');
+    this.synth = window.speechSynthesis;
+    this.ready = this.initVoice();
   }
 
   /**
-   * TODO: Implement initVoice()
-   *
    * Waits for voices to load and selects the best available voice.
    *
    * Steps:
@@ -57,12 +56,43 @@ export class SpeechService {
    * 9. Log selected voice name to console
    */
   private async initVoice(): Promise<void> {
-    throw new Error('Not implemented');
+    if (this.synth.getVoices().length === 0) {
+      await new Promise<void>(resolve => {
+        const onVoicesChanged = () => {
+          this.synth.removeEventListener('voiceschanged', onVoicesChanged);
+          resolve();
+        };
+        this.synth.addEventListener('voiceschanged', onVoicesChanged);
+      });
+    }
+
+    const voices = this.synth.getVoices();
+    const preferredNames = [
+      'Google UK English Female',
+      'Google US English',
+      'Samantha',
+      'Microsoft Aria Online',
+      'Microsoft Jenny Online',
+      'Karen',
+    ];
+
+    for (const name of preferredNames) {
+      const found = voices.find(v => v.name === name);
+      if (found) {
+        this.voice = found;
+        console.log(`✓ Selected voice: ${this.voice.name}`);
+        return;
+      }
+    }
+
+    const englishVoice = voices.find(v => v.lang.startsWith('en'));
+    if (englishVoice) {
+      this.voice = englishVoice;
+      console.log(`✓ Selected voice: ${this.voice.name}`);
+    }
   }
 
   /**
-   * TODO: Implement speak()
-   *
    * Speaks text with given options.
    *
    * Steps:
@@ -78,13 +108,39 @@ export class SpeechService {
    * 10. Handle utterance.onerror (resolve if interrupted, reject otherwise)
    * 11. Call this.synth.speak(utterance)
    */
-  async speak(text: string, options: any = {}): Promise<void> {
-    throw new Error('Not implemented');
+  async speak(text: string, options: SpeechOptions = {}): Promise<void> {
+    await this.ready;
+
+    this.synth.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    if (this.voice) {
+      utterance.voice = this.voice;
+    }
+    utterance.rate = options.rate ?? 0.85;
+    utterance.pitch = options.pitch ?? 1.1;
+    utterance.volume = 1.0;
+
+    if (options.onBoundary) {
+      utterance.onboundary = (event: SpeechSynthesisEvent) => {
+        options.onBoundary!(event.charIndex);
+      };
+    }
+
+    return new Promise<void>((resolve, reject) => {
+      utterance.onend = () => resolve();
+      utterance.onerror = (event: SpeechSynthesisErrorEvent) => {
+        if (event.error === 'interrupted') {
+          resolve();
+        } else {
+          reject(new Error(`Speech error: ${event.error}`));
+        }
+      };
+      this.synth.speak(utterance);
+    });
   }
 
   /**
-   * TODO: Implement speakWord()
-   *
    * Announces a word to spell.
    *
    * Steps:
@@ -93,12 +149,10 @@ export class SpeechService {
    * 3. Return the promise
    */
   async speakWord(word: string): Promise<void> {
-    throw new Error('Not implemented');
+    return this.speak(`Spell the word: ${word}`, { rate: 0.85, pitch: 1.1 });
   }
 
   /**
-   * TODO: Implement speakSentence()
-   *
    * Reads the example sentence.
    *
    * Steps:
@@ -107,12 +161,10 @@ export class SpeechService {
    * 3. Return the promise
    */
   async speakSentence(sentence: string): Promise<void> {
-    throw new Error('Not implemented');
+    return this.speak(sentence, { rate: 0.85, pitch: 1.0 });
   }
 
   /**
-   * TODO: Implement speakLetter()
-   *
    * Speaks a single letter clearly.
    *
    * Steps:
@@ -122,12 +174,11 @@ export class SpeechService {
    * 4. Return the promise
    */
   async speakLetter(letter: string): Promise<void> {
-    throw new Error('Not implemented');
+    const phonetic = this.getPhoneticLetter(letter);
+    return this.speak(phonetic, { rate: 0.7, pitch: 1.0 });
   }
 
   /**
-   * TODO: Implement getPhoneticLetter()
-   *
    * Returns a clear pronunciation for the letter.
    *
    * Steps:
@@ -138,31 +189,27 @@ export class SpeechService {
    * 5. Future enhancement: use phonetic alphabet (Alpha, Bravo, etc.)
    */
   private getPhoneticLetter(letter: string): string {
-    throw new Error('Not implemented');
+    return letter.toUpperCase();
   }
 
   /**
-   * TODO: Implement stop()
-   *
    * Cancels any ongoing speech.
    *
    * Steps:
    * 1. Call this.synth.cancel()
    */
   stop(): void {
-    throw new Error('Not implemented');
+    this.synth.cancel();
   }
 
   /**
-   * TODO: Implement isSupported getter
-   *
    * Checks if speech API is available.
    *
    * Steps:
    * 1. Return ('speechSynthesis' in window)
    */
   get isSupported(): boolean {
-    throw new Error('Not implemented');
+    return 'speechSynthesis' in window;
   }
 }
 
