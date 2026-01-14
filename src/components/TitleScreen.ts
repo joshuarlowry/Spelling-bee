@@ -166,14 +166,15 @@ export class TitleScreen extends HTMLElement {
       const themeIds = this.wordLoaderService.getThemeList();
 
       for (const themeId of themeIds) {
-        const theme = await this.wordLoaderService.loadTheme(themeId);
+        const wordList = await this.wordLoaderService.loadTheme(themeId);
+        const totalWords = wordList.levels.reduce((sum, level) => sum + (level.words?.length || 0), 0);
 
         const card = document.createElement('div');
         card.className = 'theme-card';
         card.innerHTML = `
           <div class="theme-icon">${this.getThemeIcon(themeId)}</div>
           <h2 class="theme-name">${this.capitalize(themeId)}</h2>
-          <p class="theme-description">${theme.description || `${theme.words.length} words`}</p>
+          <p class="theme-description">${wordList.theme.description || `${totalWords} words`}</p>
         `;
 
         card.addEventListener('click', () => this.handleThemeSelect(themeId));
@@ -206,8 +207,10 @@ export class TitleScreen extends HTMLElement {
     const themeKeys = Object.keys(progress.themes);
     if (themeKeys.length === 0) return;
 
-    const lastTheme = themeKeys[themeKeys.length - 1];
+    const lastTheme = themeKeys[themeKeys.length - 1] || '';
+    if (!lastTheme) return;
     const themeProgress = progress.themes[lastTheme];
+    if (!themeProgress) return;
     const level = themeProgress.currentLevel || 1;
 
     this.audioService.play('click');

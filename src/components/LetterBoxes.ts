@@ -43,14 +43,14 @@ export class LetterBoxes {
 
     for (let i = 0; i < this.word.length; i++) {
       const letterBox = document.createElement('letter-box') as LetterBox;
-      letterBox.setAttribute('letter', this.word[i]);
+      letterBox.setAttribute('letter', this.word[i] || '');
       letterBox.setAttribute('index', i.toString());
       this.boxes.push(letterBox);
       this.container.appendChild(letterBox);
     }
 
     if (this.boxes.length > 0) {
-      this.boxes[0].focus();
+      this.boxes[0]?.focus();
     }
   }
 
@@ -58,8 +58,8 @@ export class LetterBoxes {
     this.container.addEventListener('letter-correct', (e) =>
       this.handleLetterCorrect(e as CustomEvent)
     );
-    this.container.addEventListener('letter-incorrect', (e) =>
-      this.handleLetterIncorrect(e as CustomEvent)
+    this.container.addEventListener('letter-incorrect', () =>
+      this.handleLetterIncorrect()
     );
     this.container.addEventListener('focus-previous', (e) =>
       this.handleFocusPrevious(e as CustomEvent)
@@ -69,35 +69,37 @@ export class LetterBoxes {
   private handleLetterCorrect(e: CustomEvent) {
     const { index } = e.detail;
     this.audioService.play('correct');
-    this.speechService.speakLetter(this.word[index]);
+    this.speechService.speakLetter(this.word[index] || '');
 
     if (index < this.boxes.length - 1) {
-      this.boxes[index + 1].focus();
+      this.boxes[index + 1]?.focus();
     }
 
     this.checkCompletion();
   }
 
-  private handleLetterIncorrect(e: CustomEvent) {
+  private handleLetterIncorrect() {
     this.audioService.play('incorrect');
   }
 
   private handleFocusPrevious(e: CustomEvent) {
     const { index } = e.detail;
     if (index > 0) {
-      this.boxes[index - 1].focus();
+      this.boxes[index - 1]?.focus();
     }
   }
 
   async revealAll() {
     for (let i = 0; i < this.boxes.length; i++) {
       const box = this.boxes[i];
-      // Check if box is not already revealed by checking if input is disabled
-      const input = box.shadowRoot?.querySelector('input') as HTMLInputElement;
-      if (!input?.disabled) {
-        box.reveal();
-        this.speechService.speakLetter(this.word[i]);
-        await new Promise((resolve) => setTimeout(resolve, 300));
+      if (box) {
+        // Check if box is not already revealed by checking if input is disabled
+        const input = box.shadowRoot?.querySelector('input') as HTMLInputElement;
+        if (!input?.disabled) {
+          box.reveal();
+          this.speechService.speakLetter(this.word[i] || '');
+          await new Promise((resolve) => setTimeout(resolve, 300));
+        }
       }
     }
     this.checkCompletion();

@@ -22,7 +22,6 @@
 export class LetterBox extends HTMLElement {
   private input!: HTMLInputElement;
   private correctLetter!: string;
-  private isRevealed: boolean = false;
 
   static get observedAttributes() {
     return ['letter', 'index', 'disabled'];
@@ -131,11 +130,11 @@ export class LetterBox extends HTMLElement {
   }
 
   private setupEventListeners() {
-    this.input.addEventListener('input', (e) => this.handleInput(e));
+    this.input.addEventListener('input', () => this.handleInput());
     this.input.addEventListener('keydown', (e) => this.handleKeydown(e));
   }
 
-  private handleInput(e: Event) {
+  private handleInput() {
     const value = this.input.value.toLowerCase();
 
     if (!value) {
@@ -179,7 +178,6 @@ export class LetterBox extends HTMLElement {
     }
     this.input.value = this.correctLetter.toUpperCase();
     this.input.disabled = true;
-    this.isRevealed = true;
   }
 
   private markIncorrect() {

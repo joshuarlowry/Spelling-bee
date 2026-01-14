@@ -182,9 +182,8 @@ export class LevelSelect extends HTMLElement {
 
   private async loadLevels() {
     try {
-      const theme = await this.wordLoaderService.loadTheme(this.themeId);
-      const progress = this.storageService.getProgress();
-      const themeProgress = progress?.themes[this.themeId];
+      await this.wordLoaderService.loadTheme(this.themeId);
+      const themeProgress = this.storageService.getProgress()?.themes[this.themeId];
 
       // Update theme name
       const themeName = this.shadowRoot?.querySelector('.theme-name');

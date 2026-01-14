@@ -142,10 +142,12 @@ export class GameScreen extends HTMLElement {
 
   private async startGame() {
     try {
-      const theme = await this.wordLoaderService.loadTheme(this.themeId);
-      this.words = theme.words || [];
+      const wordList = await this.wordLoaderService.loadTheme(this.themeId);
+      // Get words from the selected level
+      const level = wordList.levels[this.levelNum - 1];
+      this.words = level?.words || [];
 
-      this.gameState.startGame(this.themeId, this.levelNum);
+      this.gameStateManager.startGame(this.themeId, this.levelNum);
 
       const header = this.shadowRoot?.querySelector('game-header') as any;
       if (header) {
@@ -165,7 +167,7 @@ export class GameScreen extends HTMLElement {
     }
 
     const word = this.words[this.currentWordIndex];
-    this.gameState.setCurrentWord(word);
+    this.gameStateManager.setCurrentWord(word);
 
     const wordDisplay = this.shadowRoot?.querySelector('word-display') as any;
     if (wordDisplay) {
@@ -203,9 +205,9 @@ export class GameScreen extends HTMLElement {
 
   private handleWordComplete() {
     const points = this.calculatePoints();
-    const state = this.gameState.getState();
+    const state = this.gameStateManager.getState();
 
-    this.gameState.completeWord(points);
+    this.gameStateManager.completeWord(points);
 
     const header = this.shadowRoot?.querySelector('game-header') as any;
     if (header) {
@@ -219,7 +221,7 @@ export class GameScreen extends HTMLElement {
   }
 
   private handleHelp() {
-    this.gameState.useHelp();
+    this.gameStateManager.useHelp();
 
     if (this.letterBoxes) {
       this.letterBoxes.revealAll().then(() => {
@@ -234,14 +236,14 @@ export class GameScreen extends HTMLElement {
   }
 
   private handleHearAgain() {
-    const state = this.gameState.getState();
+    const state = this.gameStateManager.getState();
     if (state.currentWord) {
       this.announceWord(state.currentWord);
     }
   }
 
   private calculatePoints(): number {
-    const state = this.gameState.getState();
+    const state = this.gameStateManager.getState();
     if (!state.currentWord) return 0;
 
     return calculatePoints(
@@ -263,7 +265,7 @@ export class GameScreen extends HTMLElement {
   }
 
   private completeLevel() {
-    const state = this.gameState.getState();
+    const state = this.gameStateManager.getState();
     const score = state.sessionScore;
     const maxScore = this.words.length * 100; // Rough max
     const stars = calculateStars(score, maxScore);
@@ -284,7 +286,7 @@ export class GameScreen extends HTMLElement {
 
   private handleBack() {
     this.storageService.updateLevelProgress(this.themeId, this.levelNum, {
-      score: this.gameState.getState().sessionScore,
+      score: this.gameStateManager.getState().sessionScore,
     });
 
     this.router.navigate('levels', { theme: this.themeId });

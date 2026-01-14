@@ -16,7 +16,7 @@
  * 10. Add try/catch blocks for localStorage errors
  */
 
-import { SavedProgress, ThemeProgress, LevelProgress, UserSettings } from '../types/state';
+import { SavedProgress, LevelProgress, UserSettings } from '../types/state';
 
 const STORAGE_KEY = 'spellingBee_saveState';
 const STORAGE_VERSION = 1;

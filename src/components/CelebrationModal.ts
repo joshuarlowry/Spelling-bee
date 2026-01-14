@@ -223,7 +223,7 @@ export class CelebrationModal extends HTMLElement {
       particle.style.setProperty('--tx', `${tx}px`);
       particle.style.setProperty('--ty', `${ty}px`);
 
-      const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+      const emoji = emojis[Math.floor(Math.random() * emojis.length)] || '⭐';
       particle.textContent = emoji;
 
       starBurst.appendChild(particle);

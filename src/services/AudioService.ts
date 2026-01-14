@@ -48,7 +48,7 @@ export class AudioService {
    *    })
    * 4. Store in this.sounds Map with name as key
    */
-  private preloadSounds(): void {
+  preloadSounds(): void {
     const soundFiles: { [key in SoundName]: string } = {
       correct: '/audio/correct.mp3',
       incorrect: '/audio/incorrect.mp3',
