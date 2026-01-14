@@ -132,7 +132,15 @@ export class WordDisplay extends HTMLElement {
   setSentence(sentence: string) {
     this.sentence = sentence;
     const sentenceText = this.shadowRoot?.querySelector('.sentence-text');
-    if (sentenceText) {
+    if (sentenceText && this.word) {
+      // Replace the word in the sentence with blanks
+      // Use case-insensitive regex to find the word
+      const regex = new RegExp(`\\b${this.word}\\b`, 'gi');
+      const wordLength = this.word.length;
+      const blanks = '_'.repeat(wordLength);
+      const hiddenSentence = sentence.replace(regex, blanks);
+      sentenceText.textContent = hiddenSentence;
+    } else if (sentenceText) {
       sentenceText.textContent = sentence;
     }
   }

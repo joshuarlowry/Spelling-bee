@@ -37,6 +37,12 @@ export class LetterBox extends HTMLElement {
     this.setupEventListeners();
   }
 
+  attributeChangedCallback(name: string, _oldValue: string, newValue: string) {
+    if (name === 'letter' && newValue) {
+      this.correctLetter = newValue.toLowerCase();
+    }
+  }
+
   private render() {
     const template = document.createElement('template');
     template.innerHTML = `
