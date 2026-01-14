@@ -10,8 +10,6 @@
  */
 
 /**
- * TODO: Implement calculatePoints()
- *
  * Calculates points earned for a word.
  *
  * Steps:
@@ -34,12 +32,19 @@ export function calculatePoints(
   lettersTypedBeforeHelp: number,
   helpUsed: boolean
 ): number {
-  throw new Error('Not implemented');
+  const basePoints = 10;
+  const multiplier = getLevelMultiplier(level);
+
+  let earnedPoints = basePoints;
+  if (helpUsed) {
+    const percentage = lettersTypedBeforeHelp / wordLength;
+    earnedPoints = basePoints * percentage;
+  }
+
+  return Math.round(earnedPoints * multiplier);
 }
 
 /**
- * TODO: Implement getLevelMultiplier()
- *
  * Returns score multiplier for a level.
  *
  * Steps:
@@ -56,12 +61,13 @@ export function calculatePoints(
  * - Level 5: 3.0
  */
 export function getLevelMultiplier(level: number): number {
-  throw new Error('Not implemented');
+  if (level === 1) return 1.0;
+  if (level === 2) return 1.5;
+  if (level === 3) return 2.0;
+  return 2.0 + (level - 3) * 0.5;
 }
 
 /**
- * TODO: Implement calculateStars()
- *
  * Calculates star rating (0-3) for level completion.
  *
  * Steps:
@@ -74,12 +80,17 @@ export function getLevelMultiplier(level: number): number {
  *    - 0 stars: <50% (incomplete)
  */
 export function calculateStars(earnedScore: number, maxScore: number): 0 | 1 | 2 | 3 {
-  throw new Error('Not implemented');
+  if (maxScore === 0) return 0;
+
+  const percentage = (earnedScore / maxScore) * 100;
+
+  if (percentage >= 90) return 3;
+  if (percentage >= 70) return 2;
+  if (percentage >= 50) return 1;
+  return 0;
 }
 
 /**
- * TODO: Implement delay()
- *
  * Promise-based delay utility.
  *
  * Steps:
@@ -87,5 +98,5 @@ export function calculateStars(earnedScore: number, maxScore: number): 0 | 1 | 2
  * 2. Resolve after ms milliseconds using setTimeout
  */
 export function delay(ms: number): Promise<void> {
-  throw new Error('Not implemented');
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
