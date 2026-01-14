@@ -30,21 +30,25 @@ describe('Feature Detection', () => {
       document.querySelectorAll('.feature-warning').forEach(el => el.remove());
     });
 
-    it('should create a toast element with correct class', async () => {
-      showFeatureWarning('speechSynthesis');
+    it(
+      'should create a toast element with correct class',
+      async () => {
+        showFeatureWarning('speechSynthesis');
 
-      const toast = document.querySelector('.feature-warning');
-      expect(toast).toBeTruthy();
-      expect(toast?.className).toBe('feature-warning');
+        const toast = document.querySelector('.feature-warning');
+        expect(toast).toBeTruthy();
+        expect(toast?.className).toBe('feature-warning');
 
-      // Clean up before assertion timeout
-      await new Promise(resolve => {
-        setTimeout(() => {
-          expect(document.querySelector('.feature-warning')).toBeFalsy();
-          resolve(null);
-        }, 5100);
-      });
-    });
+        // Clean up before assertion timeout
+        await new Promise(resolve => {
+          setTimeout(() => {
+            expect(document.querySelector('.feature-warning')).toBeFalsy();
+            resolve(null);
+          }, 5100);
+        });
+      },
+      10000
+    );
 
     it('should display correct message for speechSynthesis', () => {
       showFeatureWarning('speechSynthesis');
@@ -67,18 +71,22 @@ describe('Feature Detection', () => {
       expect(toast?.textContent).toBe('Feature "unknownFeature" is not available.');
     });
 
-    it('should remove toast after 5 seconds', async () => {
-      showFeatureWarning('speechSynthesis');
+    it(
+      'should remove toast after 5 seconds',
+      async () => {
+        showFeatureWarning('speechSynthesis');
 
-      expect(document.querySelector('.feature-warning')).toBeTruthy();
+        expect(document.querySelector('.feature-warning')).toBeTruthy();
 
-      await new Promise(resolve => {
-        setTimeout(() => {
-          expect(document.querySelector('.feature-warning')).toBeFalsy();
-          resolve(null);
-        }, 5100);
-      });
-    });
+        await new Promise(resolve => {
+          setTimeout(() => {
+            expect(document.querySelector('.feature-warning')).toBeFalsy();
+            resolve(null);
+          }, 5100);
+        });
+      },
+      10000
+    );
 
     it('should append toast to document.body', () => {
       showFeatureWarning('speechSynthesis');
