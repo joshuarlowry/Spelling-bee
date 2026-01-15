@@ -15,8 +15,8 @@ describe('GameHeader', () => {
   beforeEach(async () => {
     header = document.createElement('game-header') as GameHeader;
     document.body.appendChild(header);
-    // Wait for component to render
-    await new Promise(resolve => setTimeout(resolve, 0));
+    // Wait for connectedCallback and rendering - use double rAF for better browser compat
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     vi.clearAllMocks();
   });
 
@@ -93,7 +93,8 @@ describe('GameHeader', () => {
       header.addEventListener('back', backSpy);
 
       const backBtn = header.shadowRoot?.querySelector('.back-btn') as HTMLButtonElement;
-      backBtn.click();
+      expect(backBtn).toBeTruthy(); // Ensure button exists
+      backBtn?.click();
 
       expect(backSpy).toHaveBeenCalled();
     });
@@ -105,7 +106,8 @@ describe('GameHeader', () => {
       });
 
       const backBtn = header.shadowRoot?.querySelector('.back-btn') as HTMLButtonElement;
-      backBtn.click();
+      expect(backBtn).toBeTruthy(); // Ensure button exists
+      backBtn?.click();
 
       expect(eventComposed).toBe(true);
     });
@@ -114,7 +116,8 @@ describe('GameHeader', () => {
       const { audioService } = await import('../../services/AudioService');
 
       const backBtn = header.shadowRoot?.querySelector('.back-btn') as HTMLButtonElement;
-      backBtn.click();
+      expect(backBtn).toBeTruthy(); // Ensure button exists
+      backBtn?.click();
 
       expect(audioService.play).toHaveBeenCalledWith('click');
     });
@@ -130,7 +133,8 @@ describe('GameHeader', () => {
       });
 
       const backBtn = header.shadowRoot?.querySelector('.back-btn') as HTMLButtonElement;
-      backBtn.click();
+      expect(backBtn).toBeTruthy(); // Ensure button exists
+      backBtn?.click();
 
       // Event should bubble up and cross shadow DOM boundary
       expect(eventReceived).toBe(true);

@@ -28,18 +28,39 @@ const mockSynth = {
   removeEventListener: vi.fn(),
 };
 
+// Set up mocks before importing
 globalThis.SpeechSynthesisUtterance = vi.fn(() => mockUtterance) as any;
+
+// Ensure window exists and has speechSynthesis
+if (!globalThis.window) {
+  (globalThis as any).window = {};
+}
+
 Object.defineProperty(globalThis.window, 'speechSynthesis', {
   writable: true,
+  configurable: true,
   value: mockSynth,
 });
 
 describe('SpeechService', () => {
   let service: SpeechService;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
+    // Reset getVoices mock to return voices
+    mockSynth.getVoices.mockReturnValue([
+      {
+        name: 'Google US English',
+        lang: 'en-US',
+        default: false,
+        localService: false,
+        voiceURI: 'Google US English',
+      },
+    ]);
+
     service = new SpeechService();
+    // Wait for initVoice to complete
+    await new Promise(resolve => setTimeout(resolve, 10));
   });
 
   describe('isSupported', () => {
