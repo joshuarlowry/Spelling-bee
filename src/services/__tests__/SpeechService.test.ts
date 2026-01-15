@@ -28,8 +28,8 @@ const mockSynth = {
   removeEventListener: vi.fn(),
 };
 
-global.SpeechSynthesisUtterance = vi.fn(() => mockUtterance) as any;
-Object.defineProperty(global.window, 'speechSynthesis', {
+globalThis.SpeechSynthesisUtterance = vi.fn(() => mockUtterance) as any;
+Object.defineProperty(globalThis.window, 'speechSynthesis', {
   writable: true,
   value: mockSynth,
 });
