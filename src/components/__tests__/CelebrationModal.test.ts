@@ -74,7 +74,7 @@ describe('CelebrationModal', () => {
     it('should clear star particles', () => {
       modal.show(50);
 
-      let particles = modal.shadowRoot?.querySelectorAll('.star-particle');
+      const particles = modal.shadowRoot?.querySelectorAll('.star-particle');
       expect(particles?.length).toBeGreaterThan(0);
 
       modal.hide();
