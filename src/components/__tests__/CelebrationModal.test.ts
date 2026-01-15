@@ -152,7 +152,8 @@ describe('CelebrationModal', () => {
       // Event should bubble up and cross shadow DOM boundary
       expect(eventReceived).toBe(true);
 
-      parent.removeChild(modal);
+      // Move modal back to document.body for afterEach cleanup
+      document.body.appendChild(modal);
     });
   });
 

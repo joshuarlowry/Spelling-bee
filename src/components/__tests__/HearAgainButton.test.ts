@@ -67,7 +67,8 @@ describe('HearAgainButton', () => {
 
       expect(eventReceived).toBe(true);
 
-      parent.removeChild(button);
+      // Move button back to document.body for afterEach cleanup
+      document.body.appendChild(button);
     });
 
     it('should play click sound when clicked', async () => {

@@ -3,6 +3,7 @@ import { SpeechService } from '../SpeechService';
 
 // Mock the Web Speech API
 const mockUtterance = {
+  text: '',
   voice: null,
   rate: 1,
   pitch: 1,
@@ -13,7 +14,14 @@ const mockUtterance = {
 };
 
 const mockSynth = {
-  speak: vi.fn(),
+  speak: vi.fn((utterance: any) => {
+    // Trigger onend callback asynchronously to simulate real behavior
+    setTimeout(() => {
+      if (utterance.onend) {
+        utterance.onend({} as any);
+      }
+    }, 0);
+  }),
   cancel: vi.fn(),
   getVoices: vi.fn(() => [
     {
@@ -29,7 +37,10 @@ const mockSynth = {
 };
 
 // Set up mocks before importing
-globalThis.SpeechSynthesisUtterance = vi.fn(() => mockUtterance) as any;
+globalThis.SpeechSynthesisUtterance = vi.fn((text: string) => {
+  mockUtterance.text = text;
+  return mockUtterance;
+}) as any;
 
 // Ensure window exists and has speechSynthesis
 if (!globalThis.window) {
@@ -71,201 +82,118 @@ describe('SpeechService', () => {
 
   describe('speak', () => {
     it('should call speechSynthesis.speak', async () => {
-      const promise = service.speak('Hello');
-
-      // Simulate successful speech
-      if (mockUtterance.onend) {
-        mockUtterance.onend({} as any);
-      }
-
-      await promise;
+      await service.speak('Hello');
 
       expect(mockSynth.speak).toHaveBeenCalled();
     });
 
     it('should cancel ongoing speech before speaking', async () => {
-      const promise = service.speak('Hello');
+      await service.speak('Hello');
 
       expect(mockSynth.cancel).toHaveBeenCalled();
-
-      // Simulate successful speech
-      if (mockUtterance.onend) {
-        mockUtterance.onend({} as any);
-      }
-
-      await promise;
     });
 
     it('should use default rate and pitch', async () => {
-      const promise = service.speak('Hello');
+      await service.speak('Hello');
 
       expect(mockUtterance.rate).toBe(0.85);
       expect(mockUtterance.pitch).toBe(1.1);
-
-      // Simulate successful speech
-      if (mockUtterance.onend) {
-        mockUtterance.onend({} as any);
-      }
-
-      await promise;
     });
 
     it('should use custom rate and pitch from options', async () => {
-      const promise = service.speak('Hello', { rate: 1.0, pitch: 1.5 });
+      await service.speak('Hello', { rate: 1.0, pitch: 1.5 });
 
       expect(mockUtterance.rate).toBe(1.0);
       expect(mockUtterance.pitch).toBe(1.5);
-
-      // Simulate successful speech
-      if (mockUtterance.onend) {
-        mockUtterance.onend({} as any);
-      }
-
-      await promise;
     });
 
     it('should resolve on interrupted error', async () => {
-      const promise = service.speak('Hello');
+      // Override speak to trigger interrupted error
+      mockSynth.speak.mockImplementationOnce((utterance: any) => {
+        setTimeout(() => {
+          if (utterance.onerror) {
+            utterance.onerror({ error: 'interrupted' } as any);
+          }
+        }, 0);
+      });
 
-      // Simulate interrupted error (should resolve, not reject)
-      if (mockUtterance.onerror) {
-        mockUtterance.onerror({ error: 'interrupted' } as any);
-      }
-
-      await expect(promise).resolves.toBeUndefined();
+      await expect(service.speak('Hello')).resolves.toBeUndefined();
     });
 
     it('should reject on other errors', async () => {
-      const promise = service.speak('Hello');
+      // Override speak to trigger error
+      mockSynth.speak.mockImplementationOnce((utterance: any) => {
+        setTimeout(() => {
+          if (utterance.onerror) {
+            utterance.onerror({ error: 'network' } as any);
+          }
+        }, 0);
+      });
 
-      // Simulate other error
-      if (mockUtterance.onerror) {
-        mockUtterance.onerror({ error: 'network' } as any);
-      }
-
-      await expect(promise).rejects.toThrow('Speech error: network');
+      await expect(service.speak('Hello')).rejects.toThrow('Speech error: network');
     });
   });
 
   describe('speakWord', () => {
     it('should speak word with correct format', async () => {
-      const promise = service.speakWord('cat');
+      await service.speakWord('cat');
 
       // Check the utterance was created with correct text
-      expect(SpeechSynthesisUtterance).toHaveBeenCalledWith('Spell the word: cat');
-
-      // Simulate successful speech
-      if (mockUtterance.onend) {
-        mockUtterance.onend({} as any);
-      }
-
-      await promise;
+      expect(mockUtterance.text).toBe('Spell the word: cat');
     });
 
     it('should use correct rate and pitch', async () => {
-      const promise = service.speakWord('dog');
+      await service.speakWord('dog');
 
       expect(mockUtterance.rate).toBe(0.85);
       expect(mockUtterance.pitch).toBe(1.1);
-
-      // Simulate successful speech
-      if (mockUtterance.onend) {
-        mockUtterance.onend({} as any);
-      }
-
-      await promise;
     });
   });
 
   describe('speakSentence', () => {
     it('should speak sentence directly', async () => {
       const sentence = 'The cat is sleeping.';
-      const promise = service.speakSentence(sentence);
+      await service.speakSentence(sentence);
 
-      expect(SpeechSynthesisUtterance).toHaveBeenCalledWith(sentence);
-
-      // Simulate successful speech
-      if (mockUtterance.onend) {
-        mockUtterance.onend({} as any);
-      }
-
-      await promise;
+      expect(mockUtterance.text).toBe(sentence);
     });
 
     it('should use correct rate and pitch', async () => {
-      const promise = service.speakSentence('Test sentence');
+      await service.speakSentence('Test sentence');
 
       expect(mockUtterance.rate).toBe(0.85);
       expect(mockUtterance.pitch).toBe(1.0);
-
-      // Simulate successful speech
-      if (mockUtterance.onend) {
-        mockUtterance.onend({} as any);
-      }
-
-      await promise;
     });
   });
 
   describe('speakLetter', () => {
     it('should speak letter in lowercase', async () => {
-      const promise = service.speakLetter('C');
+      await service.speakLetter('C');
 
       // Should speak lowercase 'c', not uppercase 'C' which would say "Capital C"
-      expect(SpeechSynthesisUtterance).toHaveBeenCalledWith('c');
-
-      // Simulate successful speech
-      if (mockUtterance.onend) {
-        mockUtterance.onend({} as any);
-      }
-
-      await promise;
+      expect(mockUtterance.text).toBe('c');
     });
 
     it('should handle already lowercase letter', async () => {
-      const promise = service.speakLetter('a');
+      await service.speakLetter('a');
 
-      expect(SpeechSynthesisUtterance).toHaveBeenCalledWith('a');
-
-      // Simulate successful speech
-      if (mockUtterance.onend) {
-        mockUtterance.onend({} as any);
-      }
-
-      await promise;
+      expect(mockUtterance.text).toBe('a');
     });
 
     it('should use slower rate for clarity', async () => {
-      const promise = service.speakLetter('t');
+      await service.speakLetter('t');
 
       expect(mockUtterance.rate).toBe(0.7);
       expect(mockUtterance.pitch).toBe(1.0);
-
-      // Simulate successful speech
-      if (mockUtterance.onend) {
-        mockUtterance.onend({} as any);
-      }
-
-      await promise;
     });
 
     it('should not say "Capital" before letter', async () => {
       // This is the key test for our fix
-      const promise = service.speakLetter('Z');
+      await service.speakLetter('Z');
 
       // Should speak 'z', not 'Z' (which would make speech API say "Capital Z")
-      const utteranceCall = (SpeechSynthesisUtterance as any).mock.calls[
-        (SpeechSynthesisUtterance as any).mock.calls.length - 1
-      ];
-      expect(utteranceCall[0]).toBe('z');
-      expect(utteranceCall[0]).not.toBe('Z');
-
-      // Simulate successful speech
-      if (mockUtterance.onend) {
-        mockUtterance.onend({} as any);
-      }
-
-      await promise;
+      expect(mockUtterance.text).toBe('z');
+      expect(mockUtterance.text).not.toBe('Z');
     });
   });
 

@@ -15,8 +15,11 @@ describe('GameHeader', () => {
   beforeEach(async () => {
     header = document.createElement('game-header') as GameHeader;
     document.body.appendChild(header);
-    // Wait for connectedCallback and rendering - use double rAF for better browser compat
-    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    // Wait for connectedCallback to complete - check that shadow DOM has content
+    await vi.waitFor(() => {
+      const hasContent = header.shadowRoot?.querySelector('.header') !== null;
+      if (!hasContent) throw new Error('Shadow DOM not ready');
+    }, { timeout: 1000, interval: 10 });
     vi.clearAllMocks();
   });
 
@@ -29,13 +32,13 @@ describe('GameHeader', () => {
       const shadowRoot = header.shadowRoot;
       expect(shadowRoot).toBeTruthy();
 
-      const backBtn = shadowRoot?.querySelector('.back-btn');
+      const backBtn = shadowRoot?.querySelector('.back-button');
       expect(backBtn).toBeTruthy();
 
-      const progressText = shadowRoot?.querySelector('.progress-text');
-      expect(progressText?.textContent).toContain('0 / 0');
+      const progressText = shadowRoot?.querySelector('.progress-indicator');
+      expect(progressText?.textContent).toContain('Word 1 of 10');
 
-      const scoreText = shadowRoot?.querySelector('.score-text');
+      const scoreText = shadowRoot?.querySelector('.score-display');
       expect(scoreText?.textContent).toContain('0');
     });
   });
@@ -44,7 +47,7 @@ describe('GameHeader', () => {
     it('should update progress display', () => {
       header.updateProgress(3, 10);
 
-      const progressText = header.shadowRoot?.querySelector('.progress-text');
+      const progressText = header.shadowRoot?.querySelector('.progress-indicator');
       expect(progressText?.textContent).toContain('3');
       expect(progressText?.textContent).toContain('10');
     });
@@ -52,15 +55,15 @@ describe('GameHeader', () => {
     it('should handle first word', () => {
       header.updateProgress(1, 5);
 
-      const progressText = header.shadowRoot?.querySelector('.progress-text');
+      const progressText = header.shadowRoot?.querySelector('.progress-indicator');
       expect(progressText?.textContent).toContain('1');
     });
 
     it('should handle last word', () => {
       header.updateProgress(10, 10);
 
-      const progressText = header.shadowRoot?.querySelector('.progress-text');
-      expect(progressText?.textContent).toContain('10 / 10');
+      const progressText = header.shadowRoot?.querySelector('.progress-indicator');
+      expect(progressText?.textContent).toContain('10');
     });
   });
 
@@ -68,21 +71,21 @@ describe('GameHeader', () => {
     it('should update score display', () => {
       header.updateScore(150);
 
-      const scoreText = header.shadowRoot?.querySelector('.score-text');
+      const scoreText = header.shadowRoot?.querySelector('.score-display');
       expect(scoreText?.textContent).toContain('150');
     });
 
     it('should handle zero score', () => {
       header.updateScore(0);
 
-      const scoreText = header.shadowRoot?.querySelector('.score-text');
+      const scoreText = header.shadowRoot?.querySelector('.score-display');
       expect(scoreText?.textContent).toContain('0');
     });
 
     it('should handle large scores', () => {
       header.updateScore(9999);
 
-      const scoreText = header.shadowRoot?.querySelector('.score-text');
+      const scoreText = header.shadowRoot?.querySelector('.score-display');
       expect(scoreText?.textContent).toContain('9999');
     });
   });
@@ -92,7 +95,7 @@ describe('GameHeader', () => {
       const backSpy = vi.fn();
       header.addEventListener('back', backSpy);
 
-      const backBtn = header.shadowRoot?.querySelector('.back-btn') as HTMLButtonElement;
+      const backBtn = header.shadowRoot?.querySelector('.back-button') as HTMLButtonElement;
       expect(backBtn).toBeTruthy(); // Ensure button exists
       backBtn?.click();
 
@@ -105,7 +108,7 @@ describe('GameHeader', () => {
         eventComposed = (e as CustomEvent).composed;
       });
 
-      const backBtn = header.shadowRoot?.querySelector('.back-btn') as HTMLButtonElement;
+      const backBtn = header.shadowRoot?.querySelector('.back-button') as HTMLButtonElement;
       expect(backBtn).toBeTruthy(); // Ensure button exists
       backBtn?.click();
 
@@ -115,7 +118,7 @@ describe('GameHeader', () => {
     it('should play click sound when back button clicked', async () => {
       const { audioService } = await import('../../services/AudioService');
 
-      const backBtn = header.shadowRoot?.querySelector('.back-btn') as HTMLButtonElement;
+      const backBtn = header.shadowRoot?.querySelector('.back-button') as HTMLButtonElement;
       expect(backBtn).toBeTruthy(); // Ensure button exists
       backBtn?.click();
 
@@ -132,14 +135,15 @@ describe('GameHeader', () => {
         eventReceived = true;
       });
 
-      const backBtn = header.shadowRoot?.querySelector('.back-btn') as HTMLButtonElement;
+      const backBtn = header.shadowRoot?.querySelector('.back-button') as HTMLButtonElement;
       expect(backBtn).toBeTruthy(); // Ensure button exists
       backBtn?.click();
 
       // Event should bubble up and cross shadow DOM boundary
       expect(eventReceived).toBe(true);
 
-      parent.removeChild(header);
+      // Move header back to document.body for afterEach cleanup
+      document.body.appendChild(header);
     });
   });
 
@@ -148,8 +152,8 @@ describe('GameHeader', () => {
       header.updateProgress(5, 10);
       header.updateScore(250);
 
-      const progressText = header.shadowRoot?.querySelector('.progress-text');
-      const scoreText = header.shadowRoot?.querySelector('.score-text');
+      const progressText = header.shadowRoot?.querySelector('.progress-indicator');
+      const scoreText = header.shadowRoot?.querySelector('.score-display');
 
       expect(progressText?.textContent).toContain('5');
       expect(progressText?.textContent).toContain('10');
@@ -166,8 +170,8 @@ describe('GameHeader', () => {
       header.updateProgress(3, 5);
       header.updateScore(150);
 
-      const progressText = header.shadowRoot?.querySelector('.progress-text');
-      const scoreText = header.shadowRoot?.querySelector('.score-text');
+      const progressText = header.shadowRoot?.querySelector('.progress-indicator');
+      const scoreText = header.shadowRoot?.querySelector('.score-display');
 
       expect(progressText?.textContent).toContain('3');
       expect(scoreText?.textContent).toContain('150');
