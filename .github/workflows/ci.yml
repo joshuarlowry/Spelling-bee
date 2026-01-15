@@ -60,8 +60,8 @@ jobs:
       run: npm run test:coverage -- --run
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
-        files: ./coverage/coverage-final.json
+        files: ./coverage/lcov.info
         flags: unittests
         name: codecov-umbrella
