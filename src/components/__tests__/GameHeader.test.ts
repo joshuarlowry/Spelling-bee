@@ -12,9 +12,11 @@ vi.mock('../../services/AudioService', () => ({
 describe('GameHeader', () => {
   let header: GameHeader;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     header = document.createElement('game-header') as GameHeader;
     document.body.appendChild(header);
+    // Wait for component to render
+    await new Promise(resolve => setTimeout(resolve, 0));
     vi.clearAllMocks();
   });
 

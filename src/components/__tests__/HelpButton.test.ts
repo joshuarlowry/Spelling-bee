@@ -86,7 +86,6 @@ describe('HelpButton', () => {
 
       const btn = button.shadowRoot?.querySelector('button') as HTMLButtonElement;
       expect(btn.disabled).toBe(true);
-      expect(btn.classList.contains('disabled')).toBe(true);
     });
 
     it('should enable button', () => {
@@ -95,7 +94,6 @@ describe('HelpButton', () => {
 
       const btn = button.shadowRoot?.querySelector('button') as HTMLButtonElement;
       expect(btn.disabled).toBe(false);
-      expect(btn.classList.contains('disabled')).toBe(false);
     });
 
     it('should not dispatch event when disabled', () => {

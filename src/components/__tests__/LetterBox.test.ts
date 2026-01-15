@@ -135,7 +135,7 @@ describe('LetterBox', () => {
       );
     });
 
-    it('should reject incorrect letter', () => {
+    it('should reject incorrect letter', async () => {
       letterBox.setAttribute('letter', 'a');
       letterBox.setAttribute('index', '0');
 
@@ -147,6 +147,9 @@ describe('LetterBox', () => {
       input.dispatchEvent(new Event('input'));
 
       expect(incorrectSpy).toHaveBeenCalled();
+
+      // Wait for the 300ms timeout in markIncorrect()
+      await new Promise(resolve => setTimeout(resolve, 350));
       expect(input.value).toBe(''); // Should clear incorrect input
     });
 
@@ -156,7 +159,7 @@ describe('LetterBox', () => {
       letterBox.reveal();
 
       const input = letterBox.shadowRoot?.querySelector('input') as HTMLInputElement;
-      expect(input.value).toBe('z');
+      expect(input.value).toBe('Z'); // markCorrect() displays uppercase
       expect(input.disabled).toBe(true);
     });
   });
