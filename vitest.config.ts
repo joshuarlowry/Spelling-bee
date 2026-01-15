@@ -8,6 +8,10 @@ export default defineConfig({
     setupFiles: [],
     testTimeout: 15000,
     threads: false,
+    coverage: {
+      reporter: ['text', 'json', 'lcov'],
+      reportsDirectory: 'coverage',
+    },
   },
   resolve: {
     alias: {
