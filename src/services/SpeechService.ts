@@ -189,7 +189,7 @@ export class SpeechService {
    * 5. Future enhancement: use phonetic alphabet (Alpha, Bravo, etc.)
    */
   private getPhoneticLetter(letter: string): string {
-    return letter.toUpperCase();
+    return letter.toLowerCase();
   }
 
   /**

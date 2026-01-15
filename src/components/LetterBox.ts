@@ -37,6 +37,12 @@ export class LetterBox extends HTMLElement {
     this.setupEventListeners();
   }
 
+  attributeChangedCallback(name: string, _oldValue: string, newValue: string) {
+    if (name === 'letter' && newValue) {
+      this.correctLetter = newValue.toLowerCase();
+    }
+  }
+
   private render() {
     const template = document.createElement('template');
     template.innerHTML = `
@@ -49,31 +55,33 @@ export class LetterBox extends HTMLElement {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: 60px;
-          height: 60px;
-          border: 3px solid #667eea;
-          border-radius: 8px;
-          background: white;
-          margin: 8px;
-          transition: all 0.2s;
+          width: 70px;
+          height: 70px;
+          border: 4px solid #ff3388;
+          border-radius: 16px;
+          background: linear-gradient(135deg, #ffffff 0%, #ffe4f0 100%);
+          margin: 6px;
+          transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
           position: relative;
+          box-shadow: 0 4px 12px rgba(255, 51, 136, 0.15);
         }
 
         .letter-box:focus-within {
-          border-color: #764ba2;
-          box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+          border-color: #0ea5e9;
+          box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.2), 0 6px 16px rgba(14, 165, 233, 0.25);
+          transform: translateY(-2px);
         }
 
         .letter-box.correct {
-          background: #2ecc71;
-          border-color: #27ae60;
-          animation: pop 0.4s ease-out;
+          background: linear-gradient(135deg, #86efac 0%, #22c55e 100%);
+          border-color: #16a34a;
+          animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .letter-box.incorrect {
-          background: #e74c3c;
-          border-color: #c0392b;
-          animation: shake 0.3s ease-in-out;
+          background: linear-gradient(135deg, #fca5a5 0%, #ef4444 100%);
+          border-color: #dc2626;
+          animation: shake 0.4s ease-in-out;
         }
 
         input {
@@ -81,13 +89,13 @@ export class LetterBox extends HTMLElement {
           height: 100%;
           border: none;
           background: transparent;
-          font-size: 32px;
-          font-weight: bold;
+          font-size: 36px;
+          font-weight: 800;
           text-align: center;
           text-transform: uppercase;
-          color: #333;
+          color: #1e293b;
           outline: none;
-          font-family: 'Arial', sans-serif;
+          font-family: 'Fredoka One', cursive;
         }
 
         input:disabled {
@@ -96,25 +104,31 @@ export class LetterBox extends HTMLElement {
 
         @keyframes pop {
           0% {
-            transform: scale(1);
+            transform: scale(1) rotate(0deg);
+          }
+          25% {
+            transform: scale(1.2) rotate(-5deg);
           }
           50% {
-            transform: scale(1.15);
+            transform: scale(1.1) rotate(5deg);
+          }
+          75% {
+            transform: scale(1.15) rotate(-3deg);
           }
           100% {
-            transform: scale(1);
+            transform: scale(1) rotate(0deg);
           }
         }
 
         @keyframes shake {
           0%, 100% {
-            transform: translateX(0);
+            transform: translateX(0) rotate(0deg);
           }
-          25% {
-            transform: translateX(-8px);
+          10%, 30%, 50%, 70%, 90% {
+            transform: translateX(-8px) rotate(-2deg);
           }
-          75% {
-            transform: translateX(8px);
+          20%, 40%, 60%, 80% {
+            transform: translateX(8px) rotate(2deg);
           }
         }
       </style>
@@ -147,6 +161,7 @@ export class LetterBox extends HTMLElement {
         new CustomEvent('letter-correct', {
           detail: { index: this.index, letter: value },
           bubbles: true,
+          composed: true,
         })
       );
     } else {
@@ -155,6 +170,7 @@ export class LetterBox extends HTMLElement {
         new CustomEvent('letter-incorrect', {
           detail: { index: this.index, letter: value },
           bubbles: true,
+          composed: true,
         })
       );
     }
@@ -166,6 +182,7 @@ export class LetterBox extends HTMLElement {
         new CustomEvent('focus-previous', {
           detail: { index: this.index },
           bubbles: true,
+          composed: true,
         })
       );
     }

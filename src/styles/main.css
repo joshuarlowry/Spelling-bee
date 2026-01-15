@@ -1,41 +1,33 @@
 /**
  * Main Global Styles
- *
- * Base styles for the application.
- *
- * TODO: Implement the following:
- * 1. CSS reset/normalize
- * 2. Box-sizing border-box
- * 3. Body and html base styles
- * 4. Font imports from Google Fonts
- * 5. Container styles
- * 6. Button base styles
- * 7. Card base styles
- * 8. Utility classes (hidden, flex-center, etc.)
  */
 
-/* TODO: Import variables */
-@import './variables.css';
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
 
-/* TODO: Import Google Fonts */
-/* @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&display=swap'); */
+* {
+  box-sizing: border-box;
+}
 
-/* TODO: CSS Reset */
-/* Reset margins, padding, box-sizing */
+body, html {
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-/* TODO: Body and HTML */
-/* Set font family, background color, min-height */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Fredoka One', cursive;
+}
 
-/* TODO: Container */
-/* Max width, centered, padding */
+.text-shadow {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-/* TODO: Button Base Styles */
-/* Reset button styles, cursor pointer, no outline */
-
-/* TODO: Card Base Styles */
-/* White background, border-radius, box-shadow */
-
-/* TODO: Utility Classes */
-/* .hidden { display: none; } */
-/* .flex-center { display: flex; justify-content: center; align-items: center; } */
-/* etc. */
+.text-shadow-lg {
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
+}

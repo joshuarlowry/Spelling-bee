@@ -32,30 +32,38 @@ export class HearAgainButton extends HTMLElement {
     template.innerHTML = `
       <style>
         button {
-          padding: 8px 14px;
-          border-radius: 6px;
-          background: #3498db;
+          padding: 16px 32px;
+          border-radius: 50px;
+          background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
           color: white;
-          border: none;
-          font-size: 14px;
-          font-weight: bold;
+          border: 3px solid rgba(255, 255, 255, 0.5);
+          font-size: 18px;
+          font-weight: 800;
           cursor: pointer;
-          transition: all 0.2s;
+          transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          box-shadow: 0 6px 20px rgba(14, 165, 233, 0.3);
+          font-family: 'Nunito', sans-serif;
+          display: flex;
+          align-items: center;
+          gap: 8px;
         }
 
-        button:hover {
-          background: #2980b9;
-          transform: scale(1.05);
+        button:hover:not(:disabled) {
+          background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+          transform: translateY(-2px) scale(1.05);
+          box-shadow: 0 8px 25px rgba(14, 165, 233, 0.4);
         }
 
-        button:active {
-          transform: scale(0.95);
+        button:active:not(:disabled) {
+          transform: translateY(0) scale(0.98);
+          box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
         }
 
         button:disabled {
-          background: #ccc;
+          background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
           cursor: not-allowed;
-          opacity: 0.6;
+          opacity: 0.5;
+          transform: none;
         }
       </style>
       <button>🔊 Hear Again</button>
@@ -72,7 +80,7 @@ export class HearAgainButton extends HTMLElement {
 
   private handleClick() {
     this.audioService.play('click');
-    this.dispatchEvent(new CustomEvent('hear-again', { bubbles: true }));
+    this.dispatchEvent(new CustomEvent('hear-again', { bubbles: true, composed: true }));
   }
 }
 

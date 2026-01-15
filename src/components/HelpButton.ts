@@ -33,33 +33,42 @@ export class HelpButton extends HTMLElement {
     template.innerHTML = `
       <style>
         button {
-          padding: 10px 16px;
-          border-radius: 6px;
-          background: #ff9f43;
-          color: white;
-          border: none;
-          font-size: 16px;
-          font-weight: bold;
+          padding: 16px 32px;
+          border-radius: 50px;
+          background: linear-gradient(135deg, #fde047 0%, #facc15 100%);
+          color: #854d0e;
+          border: 3px solid rgba(255, 255, 255, 0.5);
+          font-size: 18px;
+          font-weight: 800;
           cursor: pointer;
-          transition: all 0.2s;
+          transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          box-shadow: 0 6px 20px rgba(250, 204, 21, 0.3);
+          font-family: 'Nunito', sans-serif;
+          display: flex;
+          align-items: center;
+          gap: 8px;
         }
 
         button:hover:not(:disabled) {
-          background: #ff8c42;
-          transform: scale(1.05);
+          background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
+          transform: translateY(-2px) scale(1.05);
+          box-shadow: 0 8px 25px rgba(250, 204, 21, 0.4);
         }
 
         button:active:not(:disabled) {
-          transform: scale(0.95);
+          transform: translateY(0) scale(0.98);
+          box-shadow: 0 4px 15px rgba(250, 204, 21, 0.3);
         }
 
         button:disabled {
-          background: #ccc;
+          background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+          color: #64748b;
           cursor: not-allowed;
-          opacity: 0.6;
+          opacity: 0.5;
+          transform: none;
         }
       </style>
-      <button>Help Me 🆘</button>
+      <button>✨ Help Me</button>
     `;
 
     if (this.shadowRoot) {
@@ -73,7 +82,7 @@ export class HelpButton extends HTMLElement {
 
   private handleClick() {
     this.audioService.play('click');
-    this.dispatchEvent(new CustomEvent('help-requested', { bubbles: true }));
+    this.dispatchEvent(new CustomEvent('help-requested', { bubbles: true, composed: true }));
     this.setDisabled(true);
   }
 
