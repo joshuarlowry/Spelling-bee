@@ -61,21 +61,22 @@ export class SpeechService {
    * 9. Log selected voice name to console
    */
   private async initVoice(): Promise<void> {
-    if (!this.synth) {
+    const synth = this.synth;
+    if (!synth) {
       return;
     }
 
-    if (this.synth.getVoices().length === 0) {
+    if (synth.getVoices().length === 0) {
       await new Promise<void>(resolve => {
         const onVoicesChanged = () => {
-          this.synth.removeEventListener('voiceschanged', onVoicesChanged);
+          synth.removeEventListener('voiceschanged', onVoicesChanged);
           resolve();
         };
-        this.synth.addEventListener('voiceschanged', onVoicesChanged);
+        synth.addEventListener('voiceschanged', onVoicesChanged);
       });
     }
 
-    const voices = this.synth.getVoices();
+    const voices = synth.getVoices();
     const preferredNames = [
       'Google UK English Female',
       'Google US English',
@@ -120,11 +121,12 @@ export class SpeechService {
   async speak(text: string, options: SpeechOptions = {}): Promise<void> {
     await this.ready;
 
-    if (!this.synth) {
+    const synth = this.synth;
+    if (!synth) {
       return;
     }
 
-    this.synth.cancel();
+    synth.cancel();
 
     const utterance = new SpeechSynthesisUtterance(text);
     if (this.voice) {
@@ -149,7 +151,7 @@ export class SpeechService {
           reject(new Error(`Speech error: ${event.error}`));
         }
       };
-      this.synth.speak(utterance);
+      synth.speak(utterance);
     });
   }
 
