@@ -19,7 +19,7 @@
 import { SpeechOptions } from '../types/services';
 
 export class SpeechService {
-  private synth: SpeechSynthesis;
+  private synth: SpeechSynthesis | null;
   private voice: SpeechSynthesisVoice | null = null;
   private ready: Promise<void>;
 
@@ -31,8 +31,13 @@ export class SpeechService {
      * 1. Set this.synth = window.speechSynthesis
      * 2. Set this.ready = this.initVoice()
      */
-    this.synth = window.speechSynthesis;
-    this.ready = this.initVoice();
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      this.synth = window.speechSynthesis;
+      this.ready = this.initVoice();
+    } else {
+      this.synth = null;
+      this.ready = Promise.resolve();
+    }
   }
 
   /**
@@ -56,6 +61,10 @@ export class SpeechService {
    * 9. Log selected voice name to console
    */
   private async initVoice(): Promise<void> {
+    if (!this.synth) {
+      return;
+    }
+
     if (this.synth.getVoices().length === 0) {
       await new Promise<void>(resolve => {
         const onVoicesChanged = () => {
@@ -110,6 +119,10 @@ export class SpeechService {
    */
   async speak(text: string, options: SpeechOptions = {}): Promise<void> {
     await this.ready;
+
+    if (!this.synth) {
+      return;
+    }
 
     this.synth.cancel();
 
@@ -199,7 +212,7 @@ export class SpeechService {
    * 1. Call this.synth.cancel()
    */
   stop(): void {
-    this.synth.cancel();
+    this.synth?.cancel();
   }
 
   /**
@@ -209,7 +222,7 @@ export class SpeechService {
    * 1. Return ('speechSynthesis' in window)
    */
   get isSupported(): boolean {
-    return 'speechSynthesis' in window;
+    return typeof window !== 'undefined' && 'speechSynthesis' in window;
   }
 }
 
