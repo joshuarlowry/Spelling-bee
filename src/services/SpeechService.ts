@@ -19,7 +19,7 @@
 import { SpeechOptions } from '../types/services';
 
 export class SpeechService {
-  private synth: SpeechSynthesis;
+  private synth: SpeechSynthesis | null;
   private voice: SpeechSynthesisVoice | null = null;
   private ready: Promise<void>;
 
@@ -31,8 +31,13 @@ export class SpeechService {
      * 1. Set this.synth = window.speechSynthesis
      * 2. Set this.ready = this.initVoice()
      */
-    this.synth = window.speechSynthesis;
-    this.ready = this.initVoice();
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      this.synth = window.speechSynthesis;
+      this.ready = this.initVoice();
+    } else {
+      this.synth = null;
+      this.ready = Promise.resolve();
+    }
   }
 
   /**
@@ -56,17 +61,22 @@ export class SpeechService {
    * 9. Log selected voice name to console
    */
   private async initVoice(): Promise<void> {
-    if (this.synth.getVoices().length === 0) {
+    const synth = this.synth;
+    if (!synth) {
+      return;
+    }
+
+    if (synth.getVoices().length === 0) {
       await new Promise<void>(resolve => {
         const onVoicesChanged = () => {
-          this.synth.removeEventListener('voiceschanged', onVoicesChanged);
+          synth.removeEventListener('voiceschanged', onVoicesChanged);
           resolve();
         };
-        this.synth.addEventListener('voiceschanged', onVoicesChanged);
+        synth.addEventListener('voiceschanged', onVoicesChanged);
       });
     }
 
-    const voices = this.synth.getVoices();
+    const voices = synth.getVoices();
     const preferredNames = [
       'Google UK English Female',
       'Google US English',
@@ -111,7 +121,12 @@ export class SpeechService {
   async speak(text: string, options: SpeechOptions = {}): Promise<void> {
     await this.ready;
 
-    this.synth.cancel();
+    const synth = this.synth;
+    if (!synth) {
+      return;
+    }
+
+    synth.cancel();
 
     const utterance = new SpeechSynthesisUtterance(text);
     if (this.voice) {
@@ -136,7 +151,7 @@ export class SpeechService {
           reject(new Error(`Speech error: ${event.error}`));
         }
       };
-      this.synth.speak(utterance);
+      synth.speak(utterance);
     });
   }
 
@@ -199,7 +214,7 @@ export class SpeechService {
    * 1. Call this.synth.cancel()
    */
   stop(): void {
-    this.synth.cancel();
+    this.synth?.cancel();
   }
 
   /**
@@ -209,7 +224,7 @@ export class SpeechService {
    * 1. Return ('speechSynthesis' in window)
    */
   get isSupported(): boolean {
-    return 'speechSynthesis' in window;
+    return typeof window !== 'undefined' && 'speechSynthesis' in window;
   }
 }
 
